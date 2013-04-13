@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Go Play</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="../static/favicon.ico" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="../static/jquery-linedtextarea.js"></script>
+    <script src="../static/playground.js"></script>
+    <script src="../static/play.js"></script>
+    <script>
+    </script>
+  </head>
+  <body itemscope itemtype="http://schema.org/CreativeWork">
+    <div id="banner">
+      <div id="head" itemprop="name">Go Play</div>
+      <div id="controls">
+	<input type="button" value="Run" id="run">
+	<input type="button" value="About" id="aboutButton">
+      </div>
+    </div>
+    <div id="wrap">
+      <textarea itemprop="description" id="code" name="code" autocorrect="off"
+		autocomplete="off" autocapatalize="off" spellcheck="false"
+		onkeydown="keyHandler(event);"
+		onkeyup="autocompile();">{{printf "%s" .Snippet.Body |html}}</textarea>
+      <div class="hints">
+	<p>
+	(Shift-Enter to compile and run.)&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="checkbox" id="autocompile" value="checked" /> Compile and run after each keystroke</p>
+      </div>
+      <div id="output"></div>
+      <div id="errors"></div>
+      <img itemprop="image" src="http://golang.org/doc/gopher/project.png" style="display:none">
+    </div>
+    <div id="about">
+<p><b>About Go Play</b></p>
+
+<p>
+The Go Playground is a web service that runs on your computer.
+</p>
+
+<p>The service receives a Go program, compiles, links, and runs the program
+inside a sandbox, then returns the output.
+
+<!-------
+<p>Some URI's
+<ul>
+<li> <tt>/compile</tt> &mdash; Compiles and runs text
+
+</ul>
+</p>
+----------->
+
+		</div>
+	</body>
+  </body>
+</html>

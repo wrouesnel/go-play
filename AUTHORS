@@ -1,0 +1,6 @@
+Rocky Bernstein took the play.golang.org (https://code.google.com/p/go-playground/) and
+merged it into the sandboxed 'goplay' in the Go version 1 source $GOROOT/go/misc/goplay
+
+# This source code refers to The Go Authors for copyright purposes.
+# The master list of authors is in the main Go distribution,
+# visible at http://tip.golang.org/AUTHORS.

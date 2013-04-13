@@ -1,0 +1,12 @@
+A web interface for experimenting with Go code.
+
+It is similar to the Go Playground: http://golang.org/doc/play/ but it
+is less restricted -- for better or worse. This means
+
+- You can use locally install go and other packages.
+- the date and time are those set on the server
+- You can run long computations
+- No Internet access is needed.
+- Data can be totally private
+
+See Also doc.go.
