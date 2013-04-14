@@ -95,11 +95,11 @@
   // opts is an object with these keys
   //  codeEl - code editor element
   //  outputEl - program output element
-  //  runEl - run button element
-  //  fmtEl - fmt button element (optional)
-  //  shareEl - share button element (optional)
-  //  shareURLEl - share URL text input element (optional)
-  //  shareRedirect - base URL to redirect to on share (optional)
+  //  runEl   - run button element
+  //  fmtEl   - fmt button element (optional)
+  //  saveEl   - save button element (optional)
+  //  shaveLocEl - save text input element (optional)
+  //  saveRedirect - base URL to redirect to on share (optional)
   //  toysEl - toys select element (optional)
   //  enableHistory - enable using HTML5 history API (optional)
   function playground(opts) {
@@ -177,7 +177,7 @@
         return;
       }
       pushedEmpty = true;
-      $(opts.shareURLEl).hide();
+      $(opts.saveLocEl).hide();
       window.history.pushState(null, "", "/");
     }
     function popState(e) {
@@ -222,20 +222,43 @@
     $(opts.runEl).click(run);
     $(opts.fmtEl).click(fmt);
 
-    if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.shareRedirect !== null)) {
-      var saveLoc;
-      if (opts.SaveLocEl) {
-        saveLoc = $(opts.SaveLocEl).hide();
-      }
-      $(opts.saveEl).click(function() {
-        var saveData = body();
-	alert("Save clicked");
-        $.ajax("/save", {
-          processData: false,
-          data: saveData,
-          type: "POST",
-        });
-      });
+    // if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.saveRedirect !== null)) {
+    if (opts.saveEl !== null) {
+	var saveLoc;
+	var savePath = "/save";
+	if (opts.SaveLocEl) {
+            saveLoc = $(opts.SaveLocEl).hide();
+	}
+	$(opts.saveEl).click(function() {
+            var saveData = body();
+            $.ajax(savePath, {
+		processData: false,
+		data: saveData,
+		type: "POST",
+		complete: function(xhr) {
+		    if (xhr.status != 200) {
+			alert("Server error; try again.");
+			return;
+		    }
+		    alert(savePath + " saved");
+
+		    if (opts.saveRedirect) {
+			window.location = opts.saveRedirect + xhr.responseText;
+		    }
+		    if (saveLoc) {
+			var path = xhr.responseText;
+			saveLoc.show().val(path).focus().select();
+
+			if (rewriteHistory) {
+			    var historyData = {"code": sharingData};
+			    window.history.pushState(historyData, "", path);
+			    pushedEmpty = false;
+			}
+		    }
+		}
+
+            });
+	});
     }
 
     if (opts.toysEl !== null) {

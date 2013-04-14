@@ -85,7 +85,15 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 
 /*******************/
 
+const DefaultSaveName = "save"
+const GoPathSuffix    = ".go"
 func SaveHandler(w http.ResponseWriter, req *http.Request) {
+	basename := DefaultSaveName
+	// +2 for enclosing "/", e.g. "/save/" not "save"
+	SaveLen := len(DefaultSaveName) + 2
+	if len(req.URL.Path) > SaveLen {
+		basename = req.URL.Path[SaveLen:]
+	}
 	if req.Method != "POST" {
 		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
 		return
@@ -101,12 +109,17 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	req.Body.Close()
 
-	filename := filepath.Join(tmpdir, "save.go")
+	filename := filepath.Join(tmpdir, basename)
+	if filename[len(filename)-len(GoPathSuffix):] != GoPathSuffix {
+		filename += GoPathSuffix
+	}
 	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	fmt.Printf("File: %s saved\n", filename);
+
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 
