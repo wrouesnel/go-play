@@ -21,8 +21,54 @@ import (
 	"text/template"
 )
 
+/************** FIXME: put in a separate file ****************/
+import (
+	"encoding/json"
+	"go/ast"
+	"go/parser"
+	"go/printer"
+	"go/token"
+)
+
+type fmtResponse struct {
+	Body  string
+	Error string
+}
+
+func fmtHandler(w http.ResponseWriter, r *http.Request) {
+	resp := new(fmtResponse)
+	body, err := gofmt(r.FormValue("body"))
+	if err != nil {
+		resp.Error = err.Error()
+	} else {
+		resp.Body = body
+	}
+	json.NewEncoder(w).Encode(resp)
+}
+
+func gofmt(body string) (string, error) {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, "prog.go", body, parser.ParseComments)
+	if err != nil {
+		return "", err
+	}
+	ast.SortImports(fset, f)
+	var buf bytes.Buffer
+	config := &printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+	err = config.Fprint(&buf, fset, f)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+/*******************/
+
+
+
+
 var (
-	httpListen = flag.String("http", "127.0.0.1:3999", "host:port to listen on")
+	httpListen = flag.String("http", "127.0.0.1:3999",
+		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
 )
 
@@ -43,6 +89,7 @@ func main() {
 
 	http.HandleFunc("/", edit)
 	http.HandleFunc("/compile", Compile)
+	http.HandleFunc("/fmt", fmtHandler)
 	http.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("../static"))))
 	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n", *httpListen)

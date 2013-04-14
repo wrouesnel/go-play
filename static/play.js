@@ -118,6 +118,7 @@ $(document).ready(function() {
 	'codeEl':     '#code',
 	'outputEl':   '#output',
 	'runEl':      '#run',
+	'fmtEl':      '#fmt',
 	'enableHistory': true
     });
     $('#code').linedtextarea();
@@ -138,5 +139,8 @@ $(document).ready(function() {
     $('#run').click(function() {
 	about.hide();
 	compile();
+    })
+    $('#run').click(function() {
+	// ? about.hide();
     })
 });

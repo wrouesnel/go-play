@@ -200,27 +200,23 @@
       lineHighlight(error);
       output.empty().addClass("error").text(error);
     }
-    function loading() {
-      output.removeClass("error").text('Waiting for remote server...');
-    }
     function run() {
 	compile();
     }
     function fmt() {
-      loading();
-      $.ajax("/fmt", {
-        data: {"body": body()},
-        type: "POST",
-        dataType: "json",
-        success: function(data) {
-          if (data.Error) {
-            setError(data.Error);
-          } else {
-            setBody(data.Body);
-            setError("");
-          }
-        }
-      });
+	$.ajax("/fmt", {
+            data: {"body": body()},
+            type: "POST",
+            dataType: "json",
+            success: function(data) {
+		if (data.Error) {
+		    setError(data.Error);
+		} else {
+		    setBody(data.Body);
+		    setError("");
+		}
+            }
+	});
     }
 
     $(opts.runEl).click(run);
