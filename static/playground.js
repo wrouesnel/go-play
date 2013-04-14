@@ -222,41 +222,18 @@
     $(opts.runEl).click(run);
     $(opts.fmtEl).click(fmt);
 
-    if (opts.shareEl !== null && (opts.shareURLEl !== null || opts.shareRedirect !== null)) {
-      var shareURL;
-      if (opts.shareURLEl) {
-        shareURL = $(opts.shareURLEl).hide();
+    if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.shareRedirect !== null)) {
+      var saveLoc;
+      if (opts.SaveLocEl) {
+        saveLoc = $(opts.SaveLocEl).hide();
       }
-      var sharing = false;
-      $(opts.shareEl).click(function() {
-        if (sharing) return;
-        sharing = true;
-        var sharingData = body();
-        $.ajax("/share", {
+      $(opts.saveEl).click(function() {
+        var saveData = body();
+	alert("Save clicked");
+        $.ajax("/save", {
           processData: false,
-          data: sharingData,
+          data: saveData,
           type: "POST",
-          complete: function(xhr) {
-            sharing = false;
-            if (xhr.status != 200) {
-              alert("Server error; try again.");
-              return;
-            }
-            if (opts.shareRedirect) {
-              window.location = opts.shareRedirect + xhr.responseText;
-            }
-            if (shareURL) {
-              var path = "/p/" + xhr.responseText;
-              var url = origin(window.location) + path;
-              shareURL.show().val(url).focus().select();
-
-              if (rewriteHistory) {
-                var historyData = {"code": sharingData};
-                window.history.pushState(historyData, "", path);
-                pushedEmpty = false;
-              }
-            }
-          }
         });
       });
     }

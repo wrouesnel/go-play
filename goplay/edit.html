@@ -3,13 +3,13 @@
   <head>
     <title>Go Play</title>
     <link rel="stylesheet"
-	  href={{printf "\"%s/style.css\"" .ResourceRoot}}>
+	  href={{printf "\"%s/style.css\"" .ResourceDir}}>
     <link rel="shortcut icon"
-	  href={{printf "\"%s/favicon.ico\"" .ResourceRoot}} />
+	  href={{printf "\"%s/favicon.ico\"" .ResourceDir}} />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceRoot}}></script>
-    <script src={{printf "\"%s/playground.js\"" .ResourceRoot}}></script>
-    <script src={{printf "\"%s/play.js\"" .ResourceRoot}}</script>
+    <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceDir}}></script>
+    <script src={{printf "\"%s/playground.js\"" .ResourceDir}}></script>
+    <script src={{printf "\"%s/play.js\"" .ResourceDir}}</script>
     <script>
     </script>
   </head>
@@ -17,8 +17,12 @@
     <div id="banner">
       <div id="head" itemprop="name">Go Play</div>
       <div id="controls">
-	<input type="button" value="Run" id="run">
+	<input type="button" value="Run"    id="run">
 	<input type="button" value="Format" id="fmt">
+	<!---For later...
+	<input type="button" value="Save"   id="save">
+	<input type="text"                  id="saveLoc">
+	-->
       </div>
       <div id="aboutControls">
 	<input type="button" value="About" id="aboutButton">

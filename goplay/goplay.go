@@ -35,7 +35,9 @@ type fmtResponse struct {
 	Error string
 }
 
-func fmtHandler(w http.ResponseWriter, r *http.Request) {
+var tmpdir string
+
+func FmtHandler(w http.ResponseWriter, r *http.Request) {
 	resp := new(fmtResponse)
 	body, err := gofmt(r.FormValue("body"))
 	if err != nil {
@@ -63,13 +65,61 @@ func gofmt(body string) (string, error) {
 }
 /*******************/
 
+// CompileHandler is an HTTP handler that reads Go source code from the request,
+// runs the program (returning any errors),
+// and sends the program's output as the HTTP response.
+func CompileHandler(w http.ResponseWriter, req *http.Request) {
+	out, err := compile(req)
+	if err != nil {
+		error_(w, out, err)
+		return
+	}
 
+	// write the output of x as the http response
+	if *htmlOutput {
+		w.Write(out)
+	} else {
+		output.Execute(w, out)
+	}
+}
 
+/*******************/
+
+func SaveHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
+		return
+	}
+
+	/** fmt.Printf("Req %s\n", req) **/
+	body := new(bytes.Buffer)
+	_, err := body.ReadFrom(req.Body)
+	if err != nil {
+		http.Error(w, "Server Error in SaveHandler reading Body text",
+			http.StatusInternalServerError)
+		return
+	}
+	req.Body.Close()
+
+	filename := filepath.Join(tmpdir, "save.go")
+	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, req, "/", http.StatusFound)
+}
+
+/*******************/
 
 var (
 	httpListen = flag.String("http", "127.0.0.1:3999",
 		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
+	resourceDir = "../static"
+	resourceDirP = &resourceDir
+	// resourceDir = flag.String("resource-root", "../static",
+	// 	"Location of CSS and JavaScript resources")
 )
 
 var (
@@ -87,9 +137,17 @@ func main() {
 		}
 	}()
 
+	// find real temporary directory (for rewriting filename in output)
+	var err error
+	tmpdir, err = filepath.EvalSymlinks(os.TempDir())
+	if err != nil {
+		log.Fatal(err)
+	}
 	http.HandleFunc("/", edit)
-	http.HandleFunc("/compile", Compile)
-	http.HandleFunc("/fmt", fmtHandler)
+	http.HandleFunc("/compile", CompileHandler)
+	http.HandleFunc("/fmt",     FmtHandler)
+	http.HandleFunc("/save",    SaveHandler)
+
 	http.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("../static"))))
 	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n", *httpListen)
@@ -104,7 +162,7 @@ type Snippet struct {
 
 type editData struct {
 	Snippet *Snippet
-	ResourceRoot string
+	ResourceDir string
 }
 
 // edit is an HTTP handler that renders the goplay interface.
@@ -118,40 +176,12 @@ func edit(w http.ResponseWriter, req *http.Request) {
 	}
 
 	snip := &Snippet{Body: data}
-	editTemplate.Execute(w, &editData{snip, "../static"})
-}
-
-// Compile is an HTTP handler that reads Go source code from the request,
-// runs the program (returning any errors),
-// and sends the program's output as the HTTP response.
-func Compile(w http.ResponseWriter, req *http.Request) {
-	out, err := compile(req)
-	if err != nil {
-		error_(w, out, err)
-		return
-	}
-
-	// write the output of x as the http response
-	if *htmlOutput {
-		w.Write(out)
-	} else {
-		output.Execute(w, out)
-	}
+	editTemplate.Execute(w, &editData{snip, *resourceDirP})
 }
 
 var (
 	commentRe = regexp.MustCompile(`(?m)^#.*\n`)
-	tmpdir    string
 )
-
-func init() {
-	// find real temporary directory (for rewriting filename in output)
-	var err error
-	tmpdir, err = filepath.EvalSymlinks(os.TempDir())
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func compile(req *http.Request) (out []byte, err error) {
 	// x is the base name for .go, .6, executable files

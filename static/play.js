@@ -119,6 +119,8 @@ $(document).ready(function() {
 	'outputEl':   '#output',
 	'runEl':      '#run',
 	'fmtEl':      '#fmt',
+	'saveEl':     '#save',
+	'saveLocEl':  '#saveLoc',
 	'enableHistory': true
     });
     $('#code').linedtextarea();
