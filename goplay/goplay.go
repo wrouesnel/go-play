@@ -70,6 +70,7 @@ var (
 	httpListen = flag.String("http", "127.0.0.1:3999",
 		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
+	resources = "../static"
 )
 
 var (
