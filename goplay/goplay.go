@@ -70,7 +70,6 @@ var (
 	httpListen = flag.String("http", "127.0.0.1:3999",
 		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
-	resources = "../static"
 )
 
 var (
@@ -105,6 +104,7 @@ type Snippet struct {
 
 type editData struct {
 	Snippet *Snippet
+	ResourceRoot string
 }
 
 // edit is an HTTP handler that renders the goplay interface.
@@ -118,7 +118,7 @@ func edit(w http.ResponseWriter, req *http.Request) {
 	}
 
 	snip := &Snippet{Body: data}
-	editTemplate.Execute(w, &editData{snip})
+	editTemplate.Execute(w, &editData{snip, "../static"})
 }
 
 // Compile is an HTTP handler that reads Go source code from the request,

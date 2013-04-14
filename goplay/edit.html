@@ -2,12 +2,14 @@
 <html>
   <head>
     <title>Go Play</title>
-    <link rel="stylesheet" href="../static/style.css">
-    <link rel="shortcut icon" href="../static/favicon.ico" />
+    <link rel="stylesheet"
+	  href={{printf "\"%s/style.css\"" .ResourceRoot}}>
+    <link rel="shortcut icon"
+	  href={{printf "\"%s/favicon.ico\"" .ResourceRoot}} />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="../static/jquery-linedtextarea.js"></script>
-    <script src="../static/playground.js"></script>
-    <script src="../static/play.js"></script>
+    <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceRoot}}></script>
+    <script src={{printf "\"%s/playground.js\"" .ResourceRoot}}></script>
+    <script src={{printf "\"%s/play.js\"" .ResourceRoot}}</script>
     <script>
     </script>
   </head>
