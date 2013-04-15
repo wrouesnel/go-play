@@ -3,15 +3,13 @@
   <head>
     <title>Go Play</title>
     <link rel="stylesheet"
-	  href={{printf "\"%s/style.css\"" .ResourceDir}}>
-    <link rel="shortcut icon"
-	  href={{printf "\"%s/favicon.ico\"" .ResourceDir}} />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	  href={{printf "\"%s/style.css\"" .ResourceDir}} />
+    <link   rel="shortcut icon"
+	   href={{printf "\"%s/favicon.ico\"" .ResourceDir}} />
+    <script src={{printf "\"%s/jquery.min.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/playground.js\"" .ResourceDir}}></script>
-    <script src={{printf "\"%s/play.js\"" .ResourceDir}}</script>
-    <script>
-    </script>
+    <script src={{printf "\"%s/play.js\"" .ResourceDir}}></script>
   </head>
   <body itemscope itemtype="http://schema.org/CreativeWork">
     <div id="banner">
