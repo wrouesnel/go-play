@@ -1,3 +1,4 @@
+/* CSS for GO play - a local go web service to compile and run go code. */
 html {
 	height: 100%;
 }
@@ -55,6 +56,7 @@ a {
 	border: none;
 	outline: none;
 	resize: none;
+	wrap: off;
 	float: right;
 }
 #errors,
@@ -98,6 +100,7 @@ a {
 	float: right;
 	padding: 10px;
 }
+
 /* input[type=button] { */
 /* 	height: 20px; */
 /* 	border: 1px solid #ccc; */
