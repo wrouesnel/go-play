@@ -93,6 +93,7 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	SaveLen := len(DefaultSaveName) + 2
 	if len(req.URL.Path) > SaveLen {
 		basename = req.URL.Path[SaveLen:]
+		// fmt.Printf("basename %s\n", basename)
 	}
 	if req.Method != "POST" {
 		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
@@ -121,6 +122,13 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("File: %s saved\n", filename);
 
 	http.Redirect(w, req, "/", http.StatusFound)
+}
+
+/*******************/
+
+func ShareHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Printf("Redirecting\n");
+	http.Redirect(w, req, "http://play.golang.org/share", http.StatusFound)
 }
 
 /*******************/
@@ -160,6 +168,8 @@ func main() {
 	http.HandleFunc("/compile", CompileHandler)
 	http.HandleFunc("/fmt",     FmtHandler)
 	http.HandleFunc("/save",    SaveHandler)
+	http.HandleFunc("/share",   ShareHandler)
+	http.HandleFunc("/save/",   SaveHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("../static"))))

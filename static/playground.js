@@ -98,7 +98,9 @@
   //  runEl   - run button element
   //  fmtEl   - fmt button element (optional)
   //  saveEl   - save button element (optional)
-  //  shaveLocEl - save text input element (optional)
+  //  saveLocEl - save text input element (optional)
+  //  shareEl - share button element (optional)
+  //  shareURLEl - share URL text input element (optional)
   //  saveRedirect - base URL to redirect to on share (optional)
   //  toysEl - toys select element (optional)
   //  enableHistory - enable using HTML5 history API (optional)
@@ -222,16 +224,18 @@
     $(opts.runEl).click(run);
     $(opts.fmtEl).click(fmt);
 
-    // if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.saveRedirect !== null)) {
-    if (opts.saveEl !== null) {
+    if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.saveRedirect !== null)) {
 	var saveLoc;
-	var savePath = "/save";
-	if (opts.SaveLocEl) {
-            saveLoc = $(opts.SaveLocEl).hide();
+	var savePath = "saved.go";
+	if (opts.saveLocEl) {
+	    if ($(opts.saveLocEl).val() !== "") {
+		savePath = $(opts.saveLocEl).val()
+	    }
+            saveLoc = $(opts.saveLocEl).hide();
 	}
 	$(opts.saveEl).click(function() {
             var saveData = body();
-            $.ajax(savePath, {
+            $.ajax("/save/" + savePath, {
 		processData: false,
 		data: saveData,
 		type: "POST",
@@ -247,13 +251,13 @@
 		    }
 		    if (saveLoc) {
 			var path = xhr.responseText;
-			saveLoc.show().val(path).focus().select();
+			saveLoc.show().val(savePath).focus().select();
 
-			if (rewriteHistory) {
-			    var historyData = {"code": sharingData};
-			    window.history.pushState(historyData, "", path);
-			    pushedEmpty = false;
-			}
+			// if (rewriteHistory) {
+			//     var historyData = {"code": sharingData};
+			//     window.history.pushState(historyData, "", path);
+			//     pushedEmpty = false;
+			// }
 		    }
 		}
 

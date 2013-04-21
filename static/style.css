@@ -64,6 +64,8 @@ a {
 	left: 0;
 	right: 0;
 	padding: 8px;
+	border: 1px solid #375EAB;
+	background: #FFFFFF;
 }
 #output .loading {
 	color: #999;
