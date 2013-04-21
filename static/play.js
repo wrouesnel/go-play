@@ -3,8 +3,35 @@
  */
 "use strict"
 
-function compile() {
-    var prog = document.getElementById("code").value;
+function body() {
+    return document.getElementById("code").value;
+}
+
+function save() {
+    var savePath = document.getElementById("saveLoc").value;
+    var prog = body();
+    var xhReq = new XMLHttpRequest();
+
+    if (savePath == "") { savePath = "saved.go" }
+    xhReq.open("POST", "/save/" + savePath, true);
+    xhReq.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    xhReq.send(prog);
+
+    // FIXME: we should get this from the response.
+    alert(savePath + " saved");
+    var path = xhReq.responseText;
+    // saveLoc.show().val(savePath).focus().select();
+
+    // if (rewriteHistory) {
+    //     var historyData = {"code": sharingData};
+    //     window.history.pushState(historyData, "", path);
+    //     pushedEmpty = false;
+    // }
+}
+
+// Compile and run program.
+function run() {
+    var prog =  body(); // document.getElementById("code").value;
     var req = new XMLHttpRequest();
 
     xmlreq = req;
@@ -244,9 +271,9 @@ $(document).ready(function() {
     })
     $('#run').click(function() {
 	about.hide();
-	compile();
+	run();
     })
     $('#save').click(function() {
-	// alert(document.getElementById("saveLoc").value)
+	save();
     })
 });

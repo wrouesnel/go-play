@@ -202,9 +202,6 @@
       lineHighlight(error);
       output.empty().addClass("error").text(error);
     }
-    function run() {
-	compile();
-    }
     function fmt() {
 	$.ajax("/fmt", {
             data: {"body": body()},
@@ -221,49 +218,7 @@
 	});
     }
 
-    $(opts.runEl).click(run);
     $(opts.fmtEl).click(fmt);
-
-    if (opts.saveEl !== null && (opts.saveLocEl !== null || opts.saveRedirect !== null)) {
-	var saveLoc;
-	var savePath = "saved.go";
-	if (opts.saveLocEl) {
-	    if ($(opts.saveLocEl).val() !== "") {
-		savePath = $(opts.saveLocEl).val()
-	    }
-            saveLoc = $(opts.saveLocEl).hide();
-	}
-	$(opts.saveEl).click(function() {
-            var saveData = body();
-            $.ajax("/save/" + savePath, {
-		processData: false,
-		data: saveData,
-		type: "POST",
-		complete: function(xhr) {
-		    if (xhr.status != 200) {
-			alert("Server error; try again.");
-			return;
-		    }
-		    alert(savePath + " saved");
-
-		    if (opts.saveRedirect) {
-			window.location = opts.saveRedirect + xhr.responseText;
-		    }
-		    if (saveLoc) {
-			var path = xhr.responseText;
-			saveLoc.show().val(savePath).focus().select();
-
-			// if (rewriteHistory) {
-			//     var historyData = {"code": sharingData};
-			//     window.history.pushState(historyData, "", path);
-			//     pushedEmpty = false;
-			// }
-		    }
-		}
-
-            });
-	});
-    }
 
     if (opts.toysEl !== null) {
       $(opts.toysEl).bind('change', function() {

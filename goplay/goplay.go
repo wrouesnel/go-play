@@ -120,8 +120,8 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Printf("File: %s saved\n", filename);
-
 	http.Redirect(w, req, "/", http.StatusFound)
+	w.Write([]byte(filename))
 }
 
 /*******************/
