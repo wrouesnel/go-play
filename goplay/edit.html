@@ -17,6 +17,7 @@
       <div id="controls">
 	<input type="button" value="Run"     id="run">
 	<input type="button" value="Format"  id="fmt">
+	<input type="file"   value="Load"    id="load" name="files[]">
 	<input type="button" value="Save"    id="save">
 	<input type="text"   value="save.go" id="saveLoc">
       </div>
@@ -46,7 +47,7 @@ Go Play is a web service that runs on your computer.
 </p>
 
 <p>The service receives a Go program, compiles, links, and runs the program
-inside a sandbox, then returns the output.
+and then returns the output.
 
 <!-------
 <p>Some URI's

@@ -98,13 +98,14 @@ a {
 	float: right;
 	padding: 10px;
 }
-input[type=button] {
-	height: 30px;
-	border: 1px solid #ccc;
-	font-size: 20px;
-	background: #eee;
-	color: black;
-}
+/* input[type=button] { */
+/* 	height: 20px; */
+/* 	border: 1px solid #ccc; */
+/* 	font-size: 15px; */
+/* 	background: #eee; */
+/* 	color: black; */
+/* } */
+
 input[type=button]:hover {
 	color: white;
 	background: #666;

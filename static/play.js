@@ -3,6 +3,11 @@
  */
 "use strict"
 
+// Check for the various File API support.
+function have_file_support() {
+    return window.File && window.FileReader && window.FileList;
+}
+
 function body() {
     return document.getElementById("code").value;
 }
@@ -28,6 +33,22 @@ function save() {
     //     pushedEmpty = false;
     // }
 }
+
+function load(evt) {
+    // Loop through the FileList looking for go files.
+    var file = evt.target.files[0]; // FileList object
+    var data = ""
+    var reader = new FileReader();
+
+    // Closure to capture the file information.
+    reader.onload = (function(theFile) {
+        return function(e) {
+	    data = e.srcElement.result
+	    document.getElementById("code").value = data
+        };
+    })(file);
+    reader.readAsText(file)
+  }
 
 // Compile and run program.
 function run() {
@@ -276,4 +297,9 @@ $(document).ready(function() {
     $('#save').click(function() {
 	save();
     })
+    if (have_file_support()) {
+	document.getElementById('load').addEventListener('change', load, false);
+    } else {
+	load.hide();
+    }
 });
