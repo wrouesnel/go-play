@@ -22,6 +22,10 @@ function go_code_body() {
 function save() {
     var save_path = document.getElementById("saveLoc").value;
     var go_code = go_code_body();
+
+    // var go_blob = new Blob([go_code], { type: "text/plain" });
+    // go_blob.append(go_code);
+    // saveAs(go_code, "/tmp/new-save.go");
     var xh_req = new XMLHttpRequest();
 
     if (save_path == "") { save_path = "saved.go" }
@@ -55,6 +59,8 @@ function load(evt) {
         };
     })(file);
     reader.readAsText(file)
+    document.getElementById("saveLoc").value = file.name
+
   }
 
 var xml_req;
