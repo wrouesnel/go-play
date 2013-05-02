@@ -88,12 +88,14 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 const DefaultSaveName = "save"
 const GoPathSuffix    = ".go"
 func SaveHandler(w http.ResponseWriter, req *http.Request) {
-	basename := DefaultSaveName
-	// +2 for enclosing "/", e.g. "/save/" not "save"
-	SaveLen := len(DefaultSaveName) + 2
+	filename := DefaultSaveName
+	// +3 for enclosing "/X", e.g. "/save/X" not "save"
+	SaveLen := len(DefaultSaveName) + 3
 	if len(req.URL.Path) > SaveLen {
-		basename = req.URL.Path[SaveLen:]
-		// fmt.Printf("basename %s\n", basename)
+		filename = req.URL.Path[SaveLen:];
+		if filename[0] != '/' {
+			filename = filepath.Join(tmpdir, filename);
+		}
 	}
 	if req.Method != "POST" {
 		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
@@ -110,17 +112,16 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	req.Body.Close()
 
-	filename := filepath.Join(tmpdir, basename)
 	if filename[len(filename)-len(GoPathSuffix):] != GoPathSuffix {
 		filename += GoPathSuffix
 	}
 	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
 	if err != nil {
+		fmt.Printf("Save Error: %s\n", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("File: %s saved\n", filename);
-	http.Redirect(w, req, "/", http.StatusFound)
+	fmt.Printf("File: %s saved\n", filename)
 	w.Write([]byte(filename))
 }
 
