@@ -20,24 +20,28 @@ function go_code_body() {
 }
 
 function save() {
-    var save_path = document.getElementById("saveLoc").value;
+    var save_loc = document.getElementById("saveLoc")
+    var save_path = save_loc.value;
     var go_code = go_code_body();
 
-    // var go_blob = new Blob([go_code], { type: "text/plain" });
-    // go_blob.append(go_code);
-    // saveAs(go_code, "/tmp/new-save.go");
     var xh_req = new XMLHttpRequest();
 
-    if (save_path == "") { save_path = "saved.go" }
-    xh_req.open("POST", "/save/" + save_path, true);
+    if (save_path == "") { save_path = "/tmp/save.go" }
+    xh_req.open("POST", "/save/X" + save_path, true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     xh_req.send(go_code);
 
-    // FIXME: we should get this from the response.
-    alert(save_path + " saved");
-    var path = xh_req.responseText;
-    // saveLoc.show().val(save_path).focus().select();
-
+    xh_req.onreadystatechange = function () {
+	// Check if request done and it didn't fail
+	if (xh_req.readyState == 4)
+	    if (xh_req.status == 500) {
+		alert("Save Error: " + xh_req.responseText);
+	    } else if (xh_req.status == 200) {
+		var path = xh_req.responseText;
+		alert(path + " saved");
+		save_loc.value = path;
+	    }
+    }
     // if (rewriteHistory) {
     //     var historyData = {"code": sharingData};
     //     window.history.pushState(historyData, "", path);
@@ -286,10 +290,12 @@ $(document).ready(function() {
         'fmtEl':      '#fmt',
         'saveEl':     '#save',
         'saveLocEl':  '#saveLoc',
+        'loadLocEl':  '#loadLoc',
         'enableHistory': true
     });
     $('#code').linedtextarea();
     var about = $('#about');
+
     about.click(function(e) {
         if ($(e.target).is('a')) {
             return;
