@@ -3,13 +3,13 @@
   <head>
     <title>Go Play</title>
     <link rel="stylesheet"
-	  href={{printf "\"%s/play.css\"" .ResourceDir}} />
+	  href={{printf "\"%s/goplay.css\"" .ResourceDir}} />
     <link   rel="shortcut icon"
 	   href={{printf "\"%s/favicon.ico\"" .ResourceDir}} />
     <script src={{printf "\"%s/jquery.min.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/playground.js\"" .ResourceDir}}></script>
-    <script src={{printf "\"%s/play.js\"" .ResourceDir}}></script>
+    <script src={{printf "\"%s/goplay.js\"" .ResourceDir}}></script>
   </head>
   <body itemscope itemtype="http://schema.org/CreativeWork">
     <div id="banner">
@@ -37,7 +37,6 @@
       </div>
       <div id="output"></div>
       <div id="errors"></div>
-      <img itemprop="image" src="http://golang.org/doc/gopher/project.png" style="display:none">
     </div>
     <div id="about">
 <p><b>About Go Play</b></p>
