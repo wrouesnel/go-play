@@ -42,7 +42,7 @@ a {
 #about li {
 	margin-bottom: 1em;
 }
-#code, #output, #errors, pre, .lines {
+#code, pre, .lines {
 	font-family: Menlo, Courier New, monospace;
 	font-size: 11pt;
 }
@@ -59,24 +59,20 @@ a {
 	wrap: off;
 	float: right;
 }
-#errors,
-#output {
-	top: 75%;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	padding: 8px;
-	border: 1px solid #375EAB;
-	background: #FFFFFF;
-}
+/* #errors { */
+/* 	top: 75%; */
+/* 	bottom: 0; */
+/* 	left: 0; */
+/* 	right: 0; */
+/* 	padding: 8px; */
+/* 	border: 1px solid #375EAB; */
+/* 	background: #FFFFFF; */
+/* } */
 #output .loading {
 	color: #999;
 }
 #output.error {
 	color: #900;
-}
-#output pre {
-	margin: 0;
 }
 #banner {
 	position: absolute;
@@ -135,4 +131,100 @@ input[type=button]:hover {
 }
 .exit {
 	color: lightgray;
+}
+
+div.output {
+  /* position: absolute; */
+  left: 50%;
+  top: 50%;
+  right: 40px;
+  bottom: 40px;
+  background: #202020;
+  padding: 5px 10px;
+  z-index: 2;
+
+  border-radius: 10px;
+  -o-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+
+}
+div.output pre {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+div.output .stdout, div.output pre {
+  color: #e6e6e6;
+}
+div.output .stderr, div.output .error {
+  color: rgb(244, 74, 63);
+}
+div.output .system, div.output .exit {
+  color: rgb(255, 209, 77)
+}
+.buttons {
+  position: relative;
+  float: right;
+  top: -60px;
+  right: 10px;
+}
+div.output .buttons {
+  position: absolute;
+  float: none;
+  top: auto;
+  right: 5px;
+  bottom: 5px;
+}
+
+div.errors {
+  /* position: absolute; */
+  /* left: 50%; */
+  top: 75%;
+  right: 40px;
+  bottom: 0;
+  background: #202020;
+  padding: 5px 10px;
+  z-index: 2;
+
+  border-radius: 10px;
+  -o-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+
+}
+div.errors pre {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+div.errors .stdout, div.errors pre {
+  color: #e6e6e6;
+}
+div.errors .stderr, div.errors .error {
+  color: rgb(244, 74, 63);
+}
+div.errors .system, div.errors .exit {
+  color: rgb(255, 209, 77)
+}
+.buttons {
+  position: relative;
+  float: right;
+  top: -60px;
+  right: 10px;
+}
+div.errors .buttons {
+  position: absolute;
+  float: none;
+  top: auto;
+  right: 5px;
+  bottom: 5px;
 }

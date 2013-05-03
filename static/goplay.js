@@ -19,7 +19,7 @@ function go_code_body() {
     return document.getElementById("code").value;
 }
 
-function save() {
+function onSave() {
     var save_loc = document.getElementById("saveLoc")
     var save_path = save_loc.value;
     var go_code = go_code_body();
@@ -64,13 +64,21 @@ function load(evt) {
     })(file);
     reader.readAsText(file)
     document.getElementById("saveLoc").value = file.name
-
+    document.getElementById("errors").innerHTML = "";
+    document.getElementById("output").innerHTML = "";
   }
 
 var xml_req;
 
+var output = document.createElement('div');
+var outpre = document.createElement('pre');
+
 // Compile and run go program.
-function run() {
+function onRun() {
+    // outpre.innerHTML = "";
+    // output.style.display = "block";
+    // run.style.display = "none";
+
     var go_code =  go_code_body();
     var xh_req = new XMLHttpRequest();
 
@@ -79,6 +87,12 @@ function run() {
     xh_req.open("POST", "/compile", true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     xh_req.send(go_code);
+}
+
+function onClose() {
+    outpre.innerHTML = "";
+    output.style.display = "none";
+    run.style.display = "inline-block";
 }
 
 // autoindent helpers.
@@ -287,6 +301,7 @@ $(document).ready(function() {
         'codeEl':     '#code',
         'outputEl':   '#output',
         'runEl':      '#run',
+        'closeEl':    '#close',
         'fmtEl':      '#fmt',
         'saveEl':     '#save',
         'saveLocEl':  '#saveLoc',
@@ -311,11 +326,15 @@ $(document).ready(function() {
     })
     $('#run').click(function() {
         about.hide();
-        run();
+        onRun();
+    })
+    $('#close').click(function() {
+        about.hide();
+        onClose();
     })
     $('#save').click(function() {
         about.hide();
-        save();
+        onSave();
     })
     if (have_file_support()) {
         document.getElementById('load').addEventListener('change', load, false);
