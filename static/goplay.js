@@ -33,8 +33,13 @@ function have_file_support() {
 }
 
 // Return a string containing the Go code.
-function go_code_body() {
+function goCodeBody() {
     return document.getElementById("code").value;
+}
+
+// Return a string containing the Go code.
+function setGoCodeBody(text) {
+    return document.getElementById("code").value = text;
 }
 
 // function onShare() {
@@ -47,9 +52,9 @@ function go_code_body() {
 
 function onSave() {
     serverReachable();
-    var save_loc = document.getElementById("saveLoc")
+    var save_loc = document.getElementById("saveLoc");
     var save_path = save_loc.value;
-    var go_code = go_code_body();
+    var go_code = goCodeBody();
 
     var xh_req = new XMLHttpRequest();
 
@@ -80,18 +85,37 @@ function onLoad(evt) {
     // Closure to capture the file information.
     reader.onload = (function(theFile) {
         return function(e) {
-            data = e.srcElement.result
-            document.getElementById("code").value = data
+            data = e.srcElement.result;
+            document.getElementById("code").value = data;
         };
     })(file);
-    reader.readAsText(file)
-    document.getElementById("saveLoc").value = file.name
+    reader.readAsText(file);
+    document.getElementById("saveLoc").value = file.name;
     onClearOutput();
     document.getElementById("errors").innerHTML = "";
   }
 
 var xml_req;
 var about;
+
+function onFormat() {
+    serverReachable();
+    about.hide();
+    $.ajax("/fmt", {
+        data: {"body": goCodeBody()},
+        type: "POST",
+        dataType: "json",
+        success: function(data) {
+    	    if (data.Error) {
+    		setError(data.Error);
+    	    } else {
+    		setGoCodeBody(data.Body);
+    		setError("");
+    	    }
+	    onClearOutput();
+        }
+    });
+}
 
 // Compile and run go program.
 function onRun() {
@@ -102,7 +126,7 @@ function onRun() {
     var output = document.getElementById('output');
     output.style.display = "block";
 
-    var go_code =  go_code_body();
+    var go_code =  goCodeBody();
     var xh_req = new XMLHttpRequest();
 
     xml_req = xh_req;
@@ -194,6 +218,12 @@ function autocompile() {
         return;
     }
     onRun();
+}
+
+function setError(error) {
+    lineClear();
+    lineHighlight(error);
+    document.getElementById("errors").innerHTML = error;
 }
 
 // TODO(adg): make these functions operate only on a specific code div
@@ -336,6 +366,9 @@ $(document).ready(function() {
     $('#save').click(function() {
         about.hide();
         onSave();
+    })
+    $('#fmt').click(function() {
+        onFormat();
     })
     if (have_file_support()) {
         document.getElementById('load').addEventListener('change', onLoad,

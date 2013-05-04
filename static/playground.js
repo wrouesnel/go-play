@@ -8,15 +8,6 @@
 (function() {
 
   // opts is an object with these keys
-  //  codeEl - code editor element
-  //  outputEl - program output element
-  //  runEl   - run button element
-  //  fmtEl   - fmt button element (optional)
-  //  saveEl   - save button element (optional)
-  //  saveLocEl - save text input element (optional)
-  //  shareEl - share button element (optional)
-  //  shareURLEl - share URL text input element (optional)
-  //  saveRedirect - base URL to redirect to on share (optional)
   //  toysEl - toys select element (optional)
   //  enableHistory - enable using HTML5 history API (optional)
   function playground(opts) {
@@ -28,9 +19,6 @@
 
     function body() {
       return $(opts.codeEl).val();
-    }
-    function setBody(text) {
-      $(opts.codeEl).val(text);
     }
     function origin(href) {
       return (""+href).split("/").slice(0, 3).join("/");
@@ -59,29 +47,6 @@
       code[0].addEventListener('input', inputChanged);
       window.addEventListener('popstate', popState);
     }
-
-    function setError(error) {
-      lineClear();
-      lineHighlight(error);
-      output.empty().addClass("error").text(error);
-    }
-    function fmt() {
-	$.ajax("/fmt", {
-            data: {"body": body()},
-            type: "POST",
-            dataType: "json",
-            success: function(data) {
-		if (data.Error) {
-		    setError(data.Error);
-		} else {
-		    setBody(data.Body);
-		    setError("");
-		}
-            }
-	});
-    }
-
-    $(opts.fmtEl).click(fmt);
 
     if (opts.toysEl !== null) {
       $(opts.toysEl).bind('change', function() {

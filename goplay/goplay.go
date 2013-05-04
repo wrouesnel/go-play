@@ -195,7 +195,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(*httpListen, nil))
 }
 
-var editTemplate = template.Must(template.ParseFiles("edit.html"))
+var editTemplate = template.Must(template.ParseFiles("goplay.html"))
 
 type Snippet struct {
 	Body []byte
