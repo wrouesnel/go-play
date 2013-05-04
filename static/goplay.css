@@ -174,8 +174,8 @@ div.output .system, div.output .exit {
   right: 10px;
 }
 div.output .buttons {
-  position: absolute;
-  float: none;
+  /*position: absolute;*/
+  /*float: none;*/
   top: auto;
   right: 5px;
   bottom: 5px;

@@ -70,14 +70,12 @@ function load(evt) {
 
 var xml_req;
 
-var output = document.createElement('div');
-var outpre = document.createElement('pre');
-
 // Compile and run go program.
 function onRun() {
-    // outpre.innerHTML = "";
-    // output.style.display = "block";
-    // run.style.display = "none";
+    var close = document.getElementById('closebutton');
+    close.hidden = false;
+    var output = document.getElementById('output');
+    output.style.display = "block";
 
     var go_code =  go_code_body();
     var xh_req = new XMLHttpRequest();
@@ -90,9 +88,11 @@ function onRun() {
 }
 
 function onClose() {
-    outpre.innerHTML = "";
-    output.style.display = "none";
-    run.style.display = "inline-block";
+    document.getElementById("closebutton").hidden = true;
+    var output = document.getElementById("output");
+    output.innerHTML = "";
+    output.style.display = "inline-block";
+    document.getElementById("runbutton").style.display = "inline-block";
 }
 
 // autoindent helpers.
@@ -231,27 +231,6 @@ function compileUpdate() {
       }
     }
 
-    function onRun() {
-      onKill();
-      outpre.innerHTML = "";
-      output.style.display = "block";
-      run.style.display = "none";
-      stopFunc = runFunc(text(code), outpre);
-    }
-
-    function onClose() {
-      onKill();
-      output.style.display = "none";
-      run.style.display = "inline-block";
-    }
-
-    var run = document.createElement('button');
-    run.innerHTML = 'Run';
-    run.className = 'run';
-    run.addEventListener("click", onRun, false);
-    var run2 = document.createElement('button');
-    run2.className = 'run';
-    run2.innerHTML = 'Run';
     run2.addEventListener("click", onRun, false);
     var kill = document.createElement('button');
     kill.className = 'kill';
@@ -301,7 +280,6 @@ $(document).ready(function() {
         'codeEl':     '#code',
         'outputEl':   '#output',
         'runEl':      '#run',
-        'closeEl':    '#close',
         'fmtEl':      '#fmt',
         'saveEl':     '#save',
         'saveLocEl':  '#saveLoc',
@@ -328,10 +306,6 @@ $(document).ready(function() {
         about.hide();
         onRun();
     })
-    $('#close').click(function() {
-        about.hide();
-        onClose();
-    })
     $('#save').click(function() {
         about.hide();
         onSave();
@@ -342,4 +316,12 @@ $(document).ready(function() {
     } else {
         load.hide();
     }
+    var close = document.getElementById('closebutton');
+    close.innerHTML="Close";
+    close.hidden = true;
+    close.addEventListener('click', onClose, false);
+    var run = document.getElementById('runbutton');
+    run.addEventListener('click', onRun, false);
+    run.innerHTML="Run";
+    run.hidden = false;
 });
