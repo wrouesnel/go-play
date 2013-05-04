@@ -20,7 +20,7 @@ function serverReachable() {
 	if (xh_req.readyState == 4) {
 	    var s = xh_req.status;
 	    if (!(s >= 200 && (s < 300 || s == 304 ))) {
-		onClear();
+		onClearOutput();
 		alert("Server not Running");
 	    }
 	}
@@ -68,7 +68,7 @@ function onSave() {
     // }
 }
 
-function load(evt) {
+function onLoad(evt) {
     // Loop through the FileList looking for go files.
     var file = evt.target.files[0]; // FileList object
     var data = ""
@@ -88,12 +88,14 @@ function load(evt) {
   }
 
 var xml_req;
+var about;
 
 // Compile and run go program.
 function onRun() {
     serverReachable();
-    var close = document.getElementById('clearbutton');
-    close.hidden = false;
+    about.hide();
+    var clear = document.getElementById('clearbutton');
+    clear.hidden = false;
     var output = document.getElementById('output');
     output.style.display = "block";
 
@@ -107,7 +109,7 @@ function onRun() {
     xh_req.send(go_code);
 }
 
-function onClear() {
+function onClearOutput() {
     document.getElementById("clearbutton").hidden = true;
     var output = document.getElementById("output");
     output.innerHTML = "";
@@ -209,7 +211,7 @@ function compileUpdate() {
     } else {
         document.getElementById("errors").innerHTML = xh_req.responseText;
         lineHighlight(document.getElementById("errors").innerText)
-	onClear();
+	onClearOutput();
     }
 }
 
@@ -259,7 +261,7 @@ function compileUpdate() {
     var close = document.createElement('button');
     close.className = 'close';
     close.innerHTML = 'Clear';
-    close.addEventListener("click", onClear, false);
+    close.addEventListener("click", onClearOutput, false);
 
     var button = document.createElement('div');
     button.classList.add('buttons');
@@ -306,7 +308,7 @@ $(document).ready(function() {
         'enableHistory': true
     });
     $('#code').linedtextarea();
-    var about = $('#about');
+    about = $('#about');
 
     about.click(function(e) {
         if ($(e.target).is('a')) {
@@ -326,7 +328,8 @@ $(document).ready(function() {
         onSave();
     })
     if (have_file_support()) {
-        document.getElementById('load').addEventListener('change', load, false);
+        document.getElementById('load').addEventListener('change', onLoad,
+							 false);
         about.hide();
     } else {
         load.hide();
@@ -334,7 +337,7 @@ $(document).ready(function() {
     var close = document.getElementById('clearbutton');
     close.innerHTML="Clear";
     close.hidden = true;
-    close.addEventListener('click', onClear, false);
+    close.addEventListener('click', onClearOutput, false);
     var run = document.getElementById('runbutton');
     run.addEventListener('click', onRun, false);
     run.innerHTML="Run";

@@ -37,9 +37,15 @@ type fmtResponse struct {
 
 var tmpdir string
 
-func FmtHandler(w http.ResponseWriter, r *http.Request) {
+// Handles a Go-source format request. This routine must be called via
+// POST.
+func FmtHandler(w http.ResponseWriter, req *http.Request) {
 	resp := new(fmtResponse)
-	body, err := gofmt(r.FormValue("body"))
+	if req.Method != "POST" {
+		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
+		return
+	}
+	body, err := gofmt(req.FormValue("body"))
 	if err != nil {
 		resp.Error = err.Error()
 	} else {
@@ -87,6 +93,16 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 
 const DefaultSaveName = "save"
 const GoPathSuffix    = ".go"
+
+// Handles a Go-source save request.
+//
+// We have to do this in Go since  HTML5 Doesn't grok file paths.
+//
+// In order to be able to distinguish relative versus absolute paths,
+// we add an X in the URL. For example /save/X/tmp/save.go versus
+// /save/Xtmp/save.go. The latter refers to ./tmp/save.go.
+//
+// This routine must be called via POST.
 func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	filename := DefaultSaveName
 	// +3 for enclosing "/X", e.g. "/save/X" not "save"
@@ -174,7 +190,8 @@ func main() {
 
 	http.Handle("/static/", http.StripPrefix("/static/",
 		http.FileServer(http.Dir("../static"))))
-	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n", *httpListen)
+	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n",
+		*httpListen)
 	log.Fatal(http.ListenAndServe(*httpListen, nil))
 }
 
