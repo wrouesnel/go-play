@@ -1,4 +1,8 @@
-A web interface for experimenting with Go code.
+A web HTML5 interface for experimenting with Go code.
+
+The Go back-end service can format, compile, link, and run Go programs
+and return the results. A HTML5-compliant brower is used for editing
+displaying output and errors.
 
 It is similar to the Go Playground: http://golang.org/doc/play/ but it
 is less restricted -- for better or worse. This means
