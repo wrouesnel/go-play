@@ -21,7 +21,7 @@ function serverReachable() {
 	    var s = xh_req.status;
 	    if (!(s >= 200 && (s < 300 || s == 304 ))) {
 		onClearOutput();
-		alert("Server not Running");
+		alert("Web server back end is not running");
 	    }
 	}
     }
