@@ -9,6 +9,24 @@
 **/
 "use strict"
 
+function serverReachable() {
+    // IE vs. standard XHR creation
+    var xh_req = new XMLHttpRequest();
+    xh_req.open("GET", "/", true);
+    xh_req.send();
+
+    xh_req.onreadystatechange = function () {
+	// Check if request done and it didn't fail
+	if (xh_req.readyState == 4) {
+	    var s = xh_req.status;
+	    if (!(s >= 200 && (s < 300 || s == 304 ))) {
+		onClear();
+		alert("Server not Running");
+	    }
+	}
+    }
+}
+
 // Check to see if we have HTML-5 File API support.
 function have_file_support() {
     return window.File && window.FileReader && window.FileList;
@@ -20,6 +38,7 @@ function go_code_body() {
 }
 
 function onSave() {
+    serverReachable();
     var save_loc = document.getElementById("saveLoc")
     var save_path = save_loc.value;
     var go_code = go_code_body();
@@ -72,7 +91,8 @@ var xml_req;
 
 // Compile and run go program.
 function onRun() {
-    var close = document.getElementById('closebutton');
+    serverReachable();
+    var close = document.getElementById('clearbutton');
     close.hidden = false;
     var output = document.getElementById('output');
     output.style.display = "block";
@@ -87,8 +107,8 @@ function onRun() {
     xh_req.send(go_code);
 }
 
-function onClose() {
-    document.getElementById("closebutton").hidden = true;
+function onClear() {
+    document.getElementById("clearbutton").hidden = true;
     var output = document.getElementById("output");
     output.innerHTML = "";
     output.style.display = "inline-block";
@@ -189,7 +209,7 @@ function compileUpdate() {
     } else {
         document.getElementById("errors").innerHTML = xh_req.responseText;
         lineHighlight(document.getElementById("errors").innerText)
-        document.getElementById("output").innerHTML = "";
+	onClear();
     }
 }
 
@@ -238,8 +258,8 @@ function compileUpdate() {
     kill.addEventListener("click", onKill, false);
     var close = document.createElement('button');
     close.className = 'close';
-    close.innerHTML = 'Close';
-    close.addEventListener("click", onClose, false);
+    close.innerHTML = 'Clear';
+    close.addEventListener("click", onClear, false);
 
     var button = document.createElement('div');
     button.classList.add('buttons');
@@ -279,7 +299,6 @@ $(document).ready(function() {
     playground({
         'codeEl':     '#code',
         'outputEl':   '#output',
-        'runEl':      '#run',
         'fmtEl':      '#fmt',
         'saveEl':     '#save',
         'saveLocEl':  '#saveLoc',
@@ -302,10 +321,6 @@ $(document).ready(function() {
         }
         about.show();
     })
-    $('#run').click(function() {
-        about.hide();
-        onRun();
-    })
     $('#save').click(function() {
         about.hide();
         onSave();
@@ -316,10 +331,10 @@ $(document).ready(function() {
     } else {
         load.hide();
     }
-    var close = document.getElementById('closebutton');
-    close.innerHTML="Close";
+    var close = document.getElementById('clearbutton');
+    close.innerHTML="Clear";
     close.hidden = true;
-    close.addEventListener('click', onClose, false);
+    close.addEventListener('click', onClear, false);
     var run = document.getElementById('runbutton');
     run.addEventListener('click', onRun, false);
     run.innerHTML="Run";
