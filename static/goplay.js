@@ -83,8 +83,8 @@ function onLoad(evt) {
     })(file);
     reader.readAsText(file)
     document.getElementById("saveLoc").value = file.name
+    onClearOutput();
     document.getElementById("errors").innerHTML = "";
-    document.getElementById("output").innerHTML = "";
   }
 
 var xml_req;
