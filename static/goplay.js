@@ -37,6 +37,14 @@ function go_code_body() {
     return document.getElementById("code").value;
 }
 
+// function onShare() {
+//     if (rewriteHistory) {
+//         var historyData = {"code": sharingData};
+//         window.history.pushState(historyData, "", path);
+//         pushedEmpty = false;
+//     }
+// }
+
 function onSave() {
     serverReachable();
     var save_loc = document.getElementById("saveLoc")
@@ -61,11 +69,6 @@ function onSave() {
 		save_loc.value = path;
 	    }
     }
-    // if (rewriteHistory) {
-    //     var historyData = {"code": sharingData};
-    //     window.history.pushState(historyData, "", path);
-    //     pushedEmpty = false;
-    // }
 }
 
 function onLoad(evt) {
@@ -120,35 +123,43 @@ function onClearOutput() {
 // autoindent helpers.
 function insertTabs(n) {
     // find the selection start and end
-    var start = code[0].selectionStart;
-    var end   = code[0].selectionEnd;
+    var code  = document.getElementById("code");
+    var start = code.selectionStart;
+    var end   = code.selectionEnd;
     // split the textarea content into two, and insert n tabs
-    var v = code[0].value;
+    var v = code.value;
     var u = v.substr(0, start);
     for (var i=0; i<n; i++) {
         u += "\t";
     }
     u += v.substr(end);
     // set revised content
-    code[0].value = u;
+    code.value = u;
     // reset caret position after inserted tabs
-    code[0].selectionStart = start+n;
-    code[0].selectionEnd = start+n;
+    code.selectionStart = start+n;
+    code.selectionEnd = start+n;
 }
 
+// Called when a newline is entered.
+// Add the same number of tabs as the previous line,
+// and +1 the last character of this line is "{".
 function autoindent(el) {
     var curpos = el.selectionStart;
     var tabs = 0;
+    var extra_indent = 0;
+    if (curpos > 0 && el.value[curpos-1] == "{") {
+	extra_indent++;
+    }
     while (curpos > 0) {
         curpos--;
         if (el.value[curpos] == "\t") {
             tabs++;
         } else if (tabs > 0 || el.value[curpos] == "\n") {
-            break;
+	    break;
         }
     }
     setTimeout(function() {
-        insertTabs(tabs);
+        insertTabs(tabs+extra_indent);
     }, 1);
 }
 
@@ -166,10 +177,9 @@ function keyHandler(event) {
         insertTabs(1);
         preventDefault(e);
         return false;
-    }
-    if (e.keyCode == 13) { // enter
+    } else if (e.keyCode == 13) { // enter
         if (e.shiftKey) { // +shift
-            compile(e.target);
+            onRun(e.target);
             preventDefault(e);
             return false;
         } else {
@@ -183,7 +193,7 @@ function autocompile() {
     if(!document.getElementById("autocompile").checked) {
         return;
     }
-    compile();
+    onRun();
 }
 
 // TODO(adg): make these functions operate only on a specific code div

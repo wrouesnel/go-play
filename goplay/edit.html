@@ -27,7 +27,6 @@
     <div id="wrap">
       <textarea itemprop="description" id="code" name="code" autocorrect="off"
 		autocomplete="off" autocapatalize="off" spellcheck="false"
-		onkeydown="keyHandler(event);"
 		onkeyup="autocompile();">{{printf "%s" .Snippet.Body |html}}</textarea>
       <div class="hints">
 	<p>
