@@ -111,42 +111,6 @@ function onFormat() {
     });
 }
 
-// var sharing = false;
-// function onShare() {
-//     if (sharing) return;
-//     sharing = true;
-//     aboutEl.hide();
-//     var sharingData = goCodeBody();
-//     $.ajax("http://play.golang.org/share", {
-//         processData: false,
-//         data: sharingData,
-//         type: "POST",
-//         complete: function(xhr) {
-//             sharing = false;
-//             if (xhr.status != 200) {
-// 		alert("Server error; try again.");
-// 		return;
-//             }
-//             var path = "/p/" + xhr.responseText;
-// 	    alert("path is: " + path);
-//             // if (opts.shareRedirect) {
-// 	    //	window.location = opts.shareRedirect + xhr.responseText;
-//             // }
-//             // if (shareURL) {
-// 	    // 	var path = "/p/" + xhr.responseText;
-// 	    // 	var url = origin(window.location) + path;
-// 	    // 	shareURL.show().val(url).focus().select();
-
-// 	    // 	if (rewriteHistory) {
-//             //         var historyData = {"code": sharingData};
-//             //         window.history.pushState(historyData, "", path);
-//             //         pushedEmpty = false;
-// 	    // 	}
-//             // }
-//         }
-//     });
-// }
-
 // Compile and run go program.
 function onRun() {
     serverReachable();
@@ -212,9 +176,43 @@ function autoindent(el) {
 	    break;
         }
     }
+    tabs += extra_indent;
+
+    /* tabs at curpos should be folded into the tabs to be added before curpos. */
+    curpos = el.selectionStart;
+    while (el.value[curpos] == "\t" && tabs > 0 && curpos < el.value.length) {
+	tabs--;
+	curpos++;
+    }
+
     setTimeout(function() {
-        insertTabs(tabs+extra_indent);
+        insertTabs(tabs);
     }, 1);
+}
+
+// Called when a end brace '}' is entered.
+// If this the only non-blank character on the line undent
+function autounindent(el) {
+    var curpos = el.selectionStart;
+    var tabs = 0;
+    while (curpos > 0) {
+        curpos--;
+	var ch = el.value[curpos];
+        if (ch != "\t" && ch != "\n") {
+            return;
+        } else if (el.value[curpos] == "\n") {
+	    var code  = document.getElementById("code");
+	    var start = code.selectionStart - 1;
+	    var end   = code.selectionEnd;
+	    var v = code.value;
+	    var u = v.substr(0, start);
+	    u += v.substr(end);
+	    code.value = u;
+	    code.selectionStart = start;
+	    code.selectionEnd   = start;
+	    break;
+	}
+    }
 }
 
 function preventDefault(e) {
@@ -239,6 +237,8 @@ function keyHandler(event) {
         } else {
             autoindent(e.target);
         }
+    } else if (e.keyCode == 221) { // }
+	autounindent(e.target);
     }
     return true;
 }
@@ -319,9 +319,6 @@ $(document).ready(function() {
     $('#fmt').click(function() {
         onFormat();
     })
-    // $('#share').click(function() {
-    //     onShare();
-    // })
     if (have_file_support()) {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
