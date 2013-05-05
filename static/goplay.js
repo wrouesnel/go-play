@@ -9,6 +9,9 @@
 **/
 "use strict"
 
+/* Various HTML elements we will need information about */
+var aboutEl;
+
 function serverReachable() {
     // IE vs. standard XHR creation
     var xh_req = new XMLHttpRequest();
@@ -41,14 +44,6 @@ function goCodeBody() {
 function setGoCodeBody(text) {
     return document.getElementById("code").value = text;
 }
-
-// function onShare() {
-//     if (rewriteHistory) {
-//         var historyData = {"code": sharingData};
-//         window.history.pushState(historyData, "", path);
-//         pushedEmpty = false;
-//     }
-// }
 
 function onSave() {
     serverReachable();
@@ -96,11 +91,10 @@ function onLoad(evt) {
   }
 
 var xml_req;
-var about;
 
 function onFormat() {
     serverReachable();
-    about.hide();
+    aboutEl.hide();
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
         type: "POST",
@@ -117,10 +111,46 @@ function onFormat() {
     });
 }
 
+// var sharing = false;
+// function onShare() {
+//     if (sharing) return;
+//     sharing = true;
+//     aboutEl.hide();
+//     var sharingData = goCodeBody();
+//     $.ajax("http://play.golang.org/share", {
+//         processData: false,
+//         data: sharingData,
+//         type: "POST",
+//         complete: function(xhr) {
+//             sharing = false;
+//             if (xhr.status != 200) {
+// 		alert("Server error; try again.");
+// 		return;
+//             }
+//             var path = "/p/" + xhr.responseText;
+// 	    alert("path is: " + path);
+//             // if (opts.shareRedirect) {
+// 	    //	window.location = opts.shareRedirect + xhr.responseText;
+//             // }
+//             // if (shareURL) {
+// 	    // 	var path = "/p/" + xhr.responseText;
+// 	    // 	var url = origin(window.location) + path;
+// 	    // 	shareURL.show().val(url).focus().select();
+
+// 	    // 	if (rewriteHistory) {
+//             //         var historyData = {"code": sharingData};
+//             //         window.history.pushState(historyData, "", path);
+//             //         pushedEmpty = false;
+// 	    // 	}
+//             // }
+//         }
+//     });
+// }
+
 // Compile and run go program.
 function onRun() {
     serverReachable();
-    about.hide();
+    aboutEl.hide();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
     var output = document.getElementById('output');
@@ -248,94 +278,13 @@ function compileUpdate() {
     if(xh_req.status == 200) {
         document.getElementById("output").innerHTML = xh_req.responseText;
         document.getElementById("errors").innerHTML = "";
+	lineClear();
     } else {
         document.getElementById("errors").innerHTML = xh_req.responseText;
         lineHighlight(document.getElementById("errors").innerText)
 	onClearOutput();
     }
 }
-
-(function() {
-  "use strict";
-  var runFunc;
-  var count = 0;
-
-  function getId() {
-    return "code" + (count++);
-  }
-
-  function text(node) {
-    var s = "";
-    for (var i = 0; i < node.childNodes.length; i++) {
-      var n = node.childNodes[i];
-      if (n.nodeType === 1 && n.tagName === "PRE") {
-        var innerText = n.innerText === undefined ? "textContent" : "innerText";
-        s += n[innerText] + "\n";
-        continue;
-      }
-      if (n.nodeType === 1 && n.tagName !== "BUTTON") {
-        s += text(n);
-      }
-    }
-    return s;
-  }
-
-  function init(code) {
-    var id = getId();
-
-    var output = document.createElement('div');
-    var outpre = document.createElement('pre');
-    var stopFunc;
-
-    function onKill() {
-      if (stopFunc) {
-        stopFunc();
-      }
-    }
-
-    run2.addEventListener("click", onRun, false);
-    var kill = document.createElement('button');
-    kill.className = 'kill';
-    kill.innerHTML = 'Kill';
-    kill.addEventListener("click", onKill, false);
-    var close = document.createElement('button');
-    close.className = 'close';
-    close.innerHTML = 'Clear';
-    close.addEventListener("click", onClearOutput, false);
-
-    var button = document.createElement('div');
-    button.classList.add('buttons');
-    button.appendChild(run);
-    // Hack to simulate insertAfter
-    code.parentNode.insertBefore(button, code.nextSibling);
-
-    var buttons = document.createElement('div');
-    buttons.classList.add('buttons');
-    buttons.appendChild(run2);
-    buttons.appendChild(kill);
-    buttons.appendChild(close);
-
-    output.classList.add('output');
-    output.appendChild(buttons);
-    output.appendChild(outpre);
-    output.style.display = "none";
-    code.parentNode.insertBefore(output, button.nextSibling);
-  }
-
-  var play = document.querySelectorAll('div.playground');
-  for (var i = 0; i < play.length; i++) {
-    init(play[i]);
-  }
-  if (play.length > 0) {
-    if (window.connectPlayground) {
-      runFunc = window.connectPlayground("ws://" + window.location.host + "/socket");
-    } else {
-      // If this message is logged,
-      // we have neglected to include socket.js or playground.js.
-      console.log("No playground transport available.");
-    }
-  }
-})
 
 $(document).ready(function() {
     playground({
@@ -348,32 +297,35 @@ $(document).ready(function() {
         'enableHistory': true
     });
     $('#code').linedtextarea();
-    about = $('#about');
+    aboutEl = $('#about');
 
-    about.click(function(e) {
+    aboutEl.click(function(e) {
         if ($(e.target).is('a')) {
             return;
         }
-        about.hide();
+        aboutEl.hide();
     });
     $('#aboutButton').click(function() {
-        if (about.is(':visible')) {
-            about.hide();
+        if (aboutEl.is(':visible')) {
+            aboutEl.hide();
             return;
         }
-        about.show();
+        aboutEl.show();
     })
     $('#save').click(function() {
-        about.hide();
+        aboutEl.hide();
         onSave();
     })
     $('#fmt').click(function() {
         onFormat();
     })
+    // $('#share').click(function() {
+    //     onShare();
+    // })
     if (have_file_support()) {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
-        about.hide();
+        aboutEl.hide();
     } else {
         load.hide();
     }
