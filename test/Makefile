@@ -8,4 +8,4 @@ all:
 
 #: Whatever it is you want to do, it should be handled by the parent
 %:
-	$(MAKE) -C .. -f GNUmakefile $@
+	$(MAKE) -C .. -f Makefile $@

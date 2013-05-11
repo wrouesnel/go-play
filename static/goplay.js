@@ -138,24 +138,15 @@ function onClearOutput() {
     document.getElementById("runbutton").style.display = "inline-block";
 }
 
-// autoindent helpers.
+// Insert n tabs after code.selectionStart are reposition caret after
+// the inserted tabs.
 function insertTabs(n) {
-    // find the selection start and end
-    var code  = document.getElementById("code");
     var start = code.selectionStart;
-    var end   = code.selectionEnd;
-    // split the textarea content into two, and insert n tabs
-    var v = code.value;
-    var u = v.substr(0, start);
-    for (var i=0; i<n; i++) {
-        u += "\t";
-    }
-    u += v.substr(end);
     // set revised content
-    code.value = u;
+    code.value = helper.insertTabsInText(code.value, start, code.selectionEnd, n);
     // reset caret position after inserted tabs
     code.selectionStart = start+n;
-    code.selectionEnd = start+n;
+    code.selectionEnd   = start+n;
 }
 
 // Called when a newline is entered.
@@ -287,7 +278,16 @@ function compileUpdate() {
 }
 
 $(document).ready(function() {
-    playground({});
+    playground({
+        'codeEl':     '#code',
+        'outputEl':   '#output',
+        'fmtEl':      '#fmt',
+        'saveEl':     '#save',
+        'saveLocEl':  '#saveLoc',
+        'loadLocEl':  '#loadLoc',
+        'enableHistory': true
+    });
+
     $('#code').linedtextarea();
     aboutEl = $('#about');
 

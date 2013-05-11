@@ -16,6 +16,9 @@ goplay:
 #: Run tests
 check: node-checks
 
+#: same as check
+test: check
+
 #: node.js checks
 node-checks: test/node_modules
 	cd test && node basic-test.js
