@@ -13,9 +13,38 @@ var helper = (function (global) {
 	return result + text.substr(end);
     }
 
+
+    function indentToLast(text, start) {
+	var tabs = 0;
+	var pos  = start;
+	var extra_indent = 0;
+	if (pos > 0 && text[pos-1] == "{") {
+	    extra_indent++;
+	}
+	while (pos > 0) {
+            pos--;
+            if (text[pos] == "\t") {
+		tabs++;
+            } else if (tabs > 0 || text[pos] == "\n") {
+		break;
+            }
+	}
+	tabs += extra_indent;
+
+	/* tabs at pos should be folded into the tabs to be added before pos. */
+	pos = start;
+	while (text[pos] == "\t" && tabs > 0 && pos < text.length) {
+	    tabs--;
+	    pos++;
+	}
+	return [tabs, pos];
+    }
+
+
     /** docs:function-list */
     return {
-	insertTabsInText: insertTabsInText
+	insertTabsInText: insertTabsInText,
+	indentToLast    : indentToLast
     };
 
 }(this));

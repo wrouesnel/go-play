@@ -153,31 +153,14 @@ function insertTabs(n) {
 // Add the same number of tabs as the previous line,
 // and +1 the last character of this line is "{".
 function autoindent(el) {
-    var curpos = el.selectionStart;
-    var tabs = 0;
-    var extra_indent = 0;
-    if (curpos > 0 && el.value[curpos-1] == "{") {
-	extra_indent++;
-    }
-    while (curpos > 0) {
-        curpos--;
-        if (el.value[curpos] == "\t") {
-            tabs++;
-        } else if (tabs > 0 || el.value[curpos] == "\n") {
-	    break;
-        }
-    }
-    tabs += extra_indent;
-
-    /* tabs at curpos should be folded into the tabs to be added before curpos. */
-    curpos = el.selectionStart;
-    while (el.value[curpos] == "\t" && tabs > 0 && curpos < el.value.length) {
-	tabs--;
-	curpos++;
-    }
+    var results  = helper.indentToLast(el.value, el.selectionStart);
+    var tabCount = results[0];
+    var pos      = results[1];
 
     setTimeout(function() {
-        insertTabs(tabs);
+        insertTabs(tabCount);
+	el.selectionStart = pos+tabCount+1;
+	el.selectionEnd   = pos+tabCount+1;
     }, 1);
 }
 
