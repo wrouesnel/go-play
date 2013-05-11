@@ -287,15 +287,7 @@ function compileUpdate() {
 }
 
 $(document).ready(function() {
-    playground({
-        'codeEl':     '#code',
-        'outputEl':   '#output',
-        'fmtEl':      '#fmt',
-        'saveEl':     '#save',
-        'saveLocEl':  '#saveLoc',
-        'loadLocEl':  '#loadLoc',
-        'enableHistory': true
-    });
+    playground({});
     $('#code').linedtextarea();
     aboutEl = $('#about');
 
