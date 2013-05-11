@@ -160,7 +160,7 @@ function autoindent(el) {
     setTimeout(function() {
         insertTabs(tabCount);
 	el.selectionStart = pos+tabCount+1;
-	el.selectionEnd   = pos+tabCount+1;
+	el.selectionEnd   = pos+tabCount;
     }, 1);
 }
 

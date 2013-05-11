@@ -17,9 +17,6 @@
     var outdiv = $(opts.outputEl).empty();
     var output = $('<pre/>').appendTo(outdiv);
 
-    function body() {
-      return $(opts.codeEl).val();
-    }
     function origin(href) {
       return (""+href).split("/").slice(0, 3).join("/");
     }
