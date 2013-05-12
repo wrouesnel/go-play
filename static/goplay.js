@@ -143,7 +143,8 @@ function onClearOutput() {
 function insertTabs(n) {
     var start = code.selectionStart;
     // set revised content
-    code.value = helper.insertTabsInText(code.value, start, code.selectionEnd, n);
+    code.value = helper.insertTabsInText(code.value, start, code.selectionEnd,
+					 n);
     // reset caret position after inserted tabs
     code.selectionStart = start+n;
     code.selectionEnd   = start+n;
@@ -159,8 +160,8 @@ function autoindent(el) {
 
     setTimeout(function() {
         insertTabs(tabCount);
-	el.selectionStart = pos+tabCount+1;
-	el.selectionEnd   = pos+tabCount;
+	el.focus();
+	el.setSelectionRange(pos+tabCount+1, pos+tabCount+1);
     }, 1);
 }
 
@@ -230,10 +231,25 @@ function setError(error) {
     document.getElementById("errors").innerHTML = error;
 }
 
-// TODO(adg): make these functions operate only on a specific code div
+/* Parse *error*, pulling out any error line numbers and a column
+   number for the first error if that exists. Those lines extracted
+   have a linerror class added to them. This causes the line number to
+   have a different background, or highlighting. As for column
+   information, we highlight that by making that position be the
+   selected area.
+*/
 function lineHighlight(error) {
-    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)/g;
+    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)(?::([0-9]+))?/g;
     var r = regex.exec(error);
+    if (r && r[2]) {
+	// Position cursor on first error
+	var errPos = helper.line2Offset(goCodeBody(), +r[1]) + +r[2]
+	var codeEl = document.getElementById("code");
+	setTimeout(function() {
+	    codeEl.focus();
+	    codeEl.setSelectionRange(errPos-1, errPos);
+	}, 1);
+    }
     while (r) {
         $(".lines div").eq(r[1]-1).addClass("lineerror");
           r = regex.exec(error);

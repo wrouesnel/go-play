@@ -40,11 +40,22 @@ var helper = (function (global) {
 	return [tabs, pos];
     }
 
+    /* Return the char offset location for the first character of
+     * lineNum */
+    function line2Offset(text, lineNum) {
+	var lines = text.split("\n", lineNum);
+	var offset = 0;
+	for (var i=0; i<lineNum-1; i++) {
+	    offset += lines[i].length + 1; // +1 for \n
+	}
+	return offset;
+    }
 
     /** docs:function-list */
     return {
 	insertTabsInText: insertTabsInText,
-	indentToLast    : indentToLast
+	indentToLast    : indentToLast,
+	line2Offset     : line2Offset
     };
 
 }(this));
