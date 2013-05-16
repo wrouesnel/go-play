@@ -3,6 +3,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package main creates a HTTP server for a single HTML pages that
+// controls editing, writing and running go programs.
 package main
 
 import (
@@ -37,8 +39,9 @@ type fmtResponse struct {
 
 var tmpdir string
 
-// Handles a Go-source format request. This routine must be called via
-// POST.
+// FmtHandler handles a Go-source format request. The go source code
+// is given in req and the formated output is passed back in w.  This
+// routine must be called via an HTTP POST request.
 func FmtHandler(w http.ResponseWriter, req *http.Request) {
 	resp := new(fmtResponse)
 	if req.Method != "POST" {
@@ -71,9 +74,9 @@ func gofmt(body string) (string, error) {
 }
 /*******************/
 
-// CompileHandler is an HTTP handler that reads Go source code from the request,
+// CompileHandler is an HTTP handler that reads Go source code from req,
 // runs the program (returning any errors),
-// and sends the program's output as the HTTP response.
+// and sends the program's output as the HTTP response to w.
 func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	out, err := compile(req)
 	if err != nil {
@@ -94,9 +97,9 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 const DefaultSaveName = "save"
 const GoPathSuffix    = ".go"
 
-// Handles a Go-source save request.
+// SaveHandler writes a Go program to file.
 //
-// We have to do this in Go since  HTML5 Doesn't grok file paths.
+// We have to do this in Go since HTML5 Doesn't grok file paths.
 //
 // In order to be able to distinguish relative versus absolute paths,
 // we add an X in the URL. For example /save/X/tmp/save.go versus
