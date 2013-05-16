@@ -3,8 +3,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package main creates a HTTP server for a single HTML page that
-// controls editing, writing and running go programs.
+// A local HTML5 server interface to load, edit, and run
+// go programs.
 //
 // To run download from git and run:
 //    git clone http://code.google.com/p/go-play
