@@ -18,8 +18,8 @@
 //
 // Options
 //
-// * --help  give a list of all options
-// * --http  host:port to listen on. The default is 127.0.0.1:3998
+//    --help  give a list of all options
+//    --http  host:port to listen on. The default is 127.0.0.1:3998
 //
 //
 // Security
