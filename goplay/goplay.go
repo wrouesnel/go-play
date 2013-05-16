@@ -7,7 +7,7 @@
 // controls editing, writing and running go programs.
 //
 // To run download from git and run:
-//     git clone http://code.google.com/p/go-play
+//    git clone http://code.google.com/p/go-play
 //    cd go-play/goplay
 //    go run goplay.go # or go build goplay.go && ./goplay
 //
@@ -16,9 +16,15 @@
 // You should see the standard "Hello World" program, which you can
 // compile and run by pressing shift-enter.
 //
-// Some options are given with --help
+// Options
 //
-// A note on security: anyone with access to the goplay web interface
+// * --help  give a list of all options
+// * --http  host:port to listen on. The default is 127.0.0.1:3998
+//
+//
+// Security
+//
+// Anyone with access to the goplay web interface
 // can run arbitrary code on your computer. Goplay is not a sandbox,
 // and has no other security mechanisms. Do not deploy it in untrusted
 // environments.  By default, goplay listens only on localhost. This
