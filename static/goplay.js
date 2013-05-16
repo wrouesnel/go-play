@@ -16,7 +16,13 @@ function serverReachable() {
     // IE vs. standard XHR creation
     var xh_req = new XMLHttpRequest();
     xh_req.open("GET", "/", true);
-    xh_req.send();
+    try
+    {
+	xh_req.send();
+    } catch(err) {
+	alert("Web server back end is not running:\n\t" + err.message);
+	return false;
+    }
 
     xh_req.onreadystatechange = function () {
 	// Check if request done and it didn't fail
@@ -25,9 +31,11 @@ function serverReachable() {
 	    if (!(s >= 200 && (s < 300 || s == 304 ))) {
 		onClearOutput();
 		alert("Web server back end is not running");
+		return false;
 	    }
 	}
     }
+    return true;
 }
 
 // Check to see if we have HTML-5 File API support.
@@ -46,7 +54,7 @@ function setGoCodeBody(text) {
 }
 
 function onSave() {
-    serverReachable();
+    if (!serverReachable()) { return };
     var save_loc = document.getElementById("saveLoc");
     var save_path = save_loc.value;
     var go_code = goCodeBody();
@@ -93,7 +101,7 @@ function onLoad(evt) {
 var xml_req;
 
 function onFormat() {
-    serverReachable();
+    if (!serverReachable()) { return };
     aboutEl.hide();
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
@@ -113,7 +121,7 @@ function onFormat() {
 
 // Compile and run go program.
 function onRun() {
-    serverReachable();
+    if (!serverReachable()) { return };
     aboutEl.hide();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
