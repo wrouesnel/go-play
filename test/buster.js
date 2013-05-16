@@ -1,20 +1,23 @@
 var config = module.exports;
 
-config["browser tests"] = {
+// Config which can be used with node.js
+// Pure javascript that doesn't require a browser
+config["nodejs tests"] = {
     rootPath: "../",
-    environment: "browser", // or "node"
+    environment: "node", // or "browser"
     sources: [
         "static/helper.js",
-        "static/jquery.min.js",
     ],
     tests: [
-        "test/*-test.js"
+        "test/nodejs/*-test.js"
+    ]
+};
+
+
+config["browser tests"] = {
+    rootPath: "../",
+    environment: "browser",
+    tests: [
+        "test/browser/*-test.js"
     ]
 }
-
-// config["node tests"] = {
-//     environment: "node",
-//     tests: [
-//         "**/*-test.js"
-//     ]
-// };

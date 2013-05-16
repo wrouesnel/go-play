@@ -231,6 +231,8 @@ function setError(error) {
     document.getElementById("errors").innerHTML = error;
 }
 
+var errorLines = [];
+
 /* Parse *error*, pulling out any error line numbers and a column
    number for the first error if that exists. Those lines extracted
    have a linerror class added to them. This causes the line number to
@@ -250,9 +252,14 @@ function lineHighlight(error) {
 	    codeEl.setSelectionRange(errPos-1, errPos);
 	}, 1);
     }
+    var i;
+    for(i=0; i<errorLines.length; i++) {
+        $(".lines div").eq(errorLines[i]-1).removeClass("lineerror");
+    }
     while (r) {
+	errorLines[i] = +r[1];
         $(".lines div").eq(r[1]-1).addClass("lineerror");
-          r = regex.exec(error);
+        r = regex.exec(error);
     }
 }
 

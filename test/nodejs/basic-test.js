@@ -2,7 +2,7 @@
 
 if (typeof require === "function" && typeof module !== "undefined") {
     var buster = require("buster");
-    var helper = require("../static/helper");
+    var helper = require("../../static/helper");
 }
 
 (function () {

@@ -21,7 +21,7 @@ test: check
 
 #: node.js checks
 node-checks: test/node_modules
-	cd test && node basic-test.js
+	cd test && node nodejs/basic-test.js
 
 test/node_modules:
 	cd test && sudo npm link buster
