@@ -3,8 +3,26 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package main creates a HTTP server for a single HTML pages that
+// Package main creates a HTTP server for a single HTML page that
 // controls editing, writing and running go programs.
+//
+// To run download from git and run:
+//     git clone http://code.google.com/p/go-play
+//    cd go-play/goplay
+//    go run goplay.go # or go build goplay.go && ./goplay
+//
+// In a web browser load http://localhost:3998/
+//
+// You should see the standard "Hello World" program, which you can
+// compile and run by pressing shift-enter.
+//
+// Some options are given with --help
+//
+// A note on security: anyone with access to the goplay web interface
+// can run arbitrary code on your computer. Goplay is not a sandbox,
+// and has no other security mechanisms. Do not deploy it in untrusted
+// environments.  By default, goplay listens only on localhost. This
+// can be overridden with the -http parameter. Do so at your own risk.
 package main
 
 import (
@@ -154,7 +172,7 @@ func ShareHandler(w http.ResponseWriter, req *http.Request) {
 /*******************/
 
 var (
-	httpListen = flag.String("http", "127.0.0.1:3999",
+	httpListen = flag.String("http", "127.0.0.1:3998",
 		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
 	resourceDir = "../static"
