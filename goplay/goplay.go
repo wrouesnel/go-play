@@ -71,8 +71,9 @@ type fmtResponse struct {
 var tmpdir string
 
 // FmtHandler handles a Go-source format request. The go source code
-// is given in req and the formated output is passed back in w.  This
-// routine must be called via an HTTP POST request.
+// is given in req and the formated output is passed back in w.  Errors
+// are wrapped in <pre> tags and returned in re.
+// This routine must be called via an HTTP POST request.
 func FmtHandler(w http.ResponseWriter, req *http.Request) {
 	resp := new(fmtResponse)
 	if req.Method != "POST" {
@@ -81,7 +82,7 @@ func FmtHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	body, err := gofmt(req.FormValue("body"))
 	if err != nil {
-		resp.Error = err.Error()
+		resp.Error = fmt.Sprintf("<pre>%s</pre>", err.Error())
 	} else {
 		resp.Body = body
 	}
