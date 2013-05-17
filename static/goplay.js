@@ -86,6 +86,7 @@ function onLoad(evt) {
     var reader = new FileReader();
 
     // Closure to capture the file information.
+    // google-chrome works this way.
     reader.onload = (function(theFile) {
         return function(e) {
             data = e.srcElement.result;
@@ -93,6 +94,10 @@ function onLoad(evt) {
         };
     })(file);
     reader.readAsText(file);
+    // Firefox seems to work this way.
+    if (reader.result != "") {
+        document.getElementById("code").value = reader.result;
+    }
     document.getElementById("saveLoc").value = file.name;
     onClearOutput();
     document.getElementById("errors").innerHTML = "";

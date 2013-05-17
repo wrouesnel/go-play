@@ -6,12 +6,19 @@
 // A local HTML5 server interface to load, edit, and run
 // go programs.
 //
-// To run download from git and run:
+// To run download from git:
 //    git clone http://code.google.com/p/go-play
-//    cd go-play/goplay
-//    go run goplay.go # or go build goplay.go && ./goplay
 //
-// In a web browser load http://localhost:3998/
+// And run:
+//    cd go-play/goplay
+//    go run goplay.go
+//
+// or:
+//    cd go-play/goplay
+//    go build goplay.go
+//    ./goplay
+//
+// Then in a HTML5-enabled web browser, load http://localhost:3998/
 //
 // You should see the standard "Hello World" program, which you can
 // compile and run by pressing shift-enter.
@@ -28,7 +35,7 @@
 // can run arbitrary code on your computer. Goplay is not a sandbox,
 // and has no other security mechanisms. Do not deploy it in untrusted
 // environments.  By default, goplay listens only on localhost. This
-// can be overridden with the -http parameter. Do so at your own risk.
+// can be overridden with the --http parameter.
 package main
 
 import (
