@@ -89,8 +89,10 @@ function onLoad(evt) {
     // google-chrome works this way.
     reader.onload = (function(theFile) {
         return function(e) {
-            data = e.srcElement.result;
-            document.getElementById("code").value = data;
+            data = e.target.result;
+	    if (data != "") {
+		document.getElementById("code").value = data;
+	    }
         };
     })(file);
     reader.readAsText(file);
