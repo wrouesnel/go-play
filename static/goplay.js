@@ -293,7 +293,7 @@ function compileUpdate() {
 	lineClear();
     } else {
         document.getElementById("errors").innerHTML = xh_req.responseText;
-        lineHighlight(document.getElementById("errors").innerText)
+        lineHighlight(document.getElementById("errors").textContent)
 	onClearOutput();
     }
 }
