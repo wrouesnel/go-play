@@ -139,6 +139,7 @@ div.output {
   top: 50%;
   right: 40px;
   bottom: 40px;
+  min-height: 26px;
   background: #202020;
   padding: 5px 10px;
   z-index: 2;

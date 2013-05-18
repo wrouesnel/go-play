@@ -3,6 +3,8 @@
 # Comments starting with #: below are remake GNU Makefile comments. See
 # https://github.com/rocky/remake/wiki/Rake-tasks-for-gnu-make
 
+BROWSER ?= google-chrome
+
 .PHONY: run goplay check node-checks
 
 #: run the code
@@ -23,5 +25,17 @@ test: check
 node-checks: test/node_modules
 	cd test && node nodejs/basic-test.js
 
+#: static HTML checks
+static-checks: test/node_modules
+	cd test && (buster static & $(BROWSER) http://localhost:8282)
+
+#: We use buster and buster-test for testing
 test/node_modules:
-	cd test && sudo npm link buster
+	cd test && sudo npm link buster buster-test
+
+#: Install buster and buster-test
+buster-test: buster
+	sudo npm -g buster-test
+
+buster:
+	sudo npm -g buster
