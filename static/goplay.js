@@ -40,8 +40,20 @@ function serverReachable() {
 }
 
 // Check to see if we have HTML-5 File API support.
-function have_file_support() {
+function haveFileSupport() {
     return window.File && window.FileReader && window.FileList;
+}
+
+// Handle input from the settings tab.
+function handleSettings() {
+    var tab_width = document.playsettings.tabSetting.value;
+    if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
+	var code = document.getElementById("code");
+	code.style.tabSize = tab_width;
+    } else {
+	alert("Tab width should be a number between 2 and 10 inclusive: got " + tab_width);
+    }
+    return false; // prevent further bubbling of event
 }
 
 // Return a string containing the Go code.
@@ -54,6 +66,7 @@ function setGoCodeBody(text) {
     return document.getElementById("code").value = text;
 }
 
+// We come here when the "save" button is clicked
 function onSave() {
     if (!serverReachable()) { return };
     var save_loc = document.getElementById("saveLoc");
@@ -78,18 +91,6 @@ function onSave() {
 		save_loc.value = path;
 	    }
     }
-}
-
-// Handle input from the settings tab.
-function handleSettings() {
-    var tab_width = document.playsettings.tabSetting.value;
-    if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
-	var code = document.getElementById("code");
-	code.style.tabSize = tab_width;
-    } else {
-	alert("Tab width should be a number between 2 and 10 inclusive: got " + tab_width);
-    }
-    return false; // prevent further bubbling of event
 }
 
 // This is called with the "About" button is clicked and we want to
@@ -122,6 +123,13 @@ function onSettings(show) {
     }
 }
 
+// Make sure code window is shown by hiding "about" and settings tabs
+function showCodeTab() {
+    onAbout(false);
+    onSettings(false);
+}
+
+
 function onLoad(event) {
     // Loop through the FileList looking for go files.
     var file = event.target.files[0]; // FileList object
@@ -152,8 +160,7 @@ var xml_req;
 
 function onFormat() {
     if (!serverReachable()) { return };
-    aboutEl.hide();
-    settingsEl.hide();
+    showCodeTab();
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
         type: "POST",
@@ -173,8 +180,7 @@ function onFormat() {
 // Compile and run go program.
 function onRun() {
     if (!serverReachable()) { return };
-    aboutEl.hide();
-    settingsEl.hide();
+    showCodeTab();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
     var output = document.getElementById('output');
@@ -345,7 +351,6 @@ function compileUpdate() {
 
 $(document).ready(function() {
     playground({
-        'codeEl':     '#code',
         'outputEl':   '#output',
         'fmtEl':      '#fmt',
         'saveEl':     '#save',
@@ -367,18 +372,16 @@ $(document).ready(function() {
     $('#aboutButton').click(function() { onAbout(true); })
     $('#settingsButton').click(function() { onSettings(true); })
     $('#save').click(function() {
-	onAbout(false);
-        onSettings(false);
+	showCodeTab();
         onSave();
     })
     $('#fmt').click(function() {
         onFormat();
     })
-    if (have_file_support()) {
+    if (haveFileSupport()) {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
-        onAbout(false);
-        onSettings(false);
+        showCodeTab();
     } else {
         load.hide();
     }

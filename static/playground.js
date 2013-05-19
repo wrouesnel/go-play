@@ -39,11 +39,6 @@
       }
     }
     var rewriteHistory = false;
-    if (window.history && window.history.pushState && window.addEventListener && opts.enableHistory) {
-      rewriteHistory = true;
-      code[0].addEventListener('input', inputChanged);
-      window.addEventListener('popstate', popState);
-    }
 
     if (opts.toysEl !== null) {
       $(opts.toysEl).bind('change', function() {
