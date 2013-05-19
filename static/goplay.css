@@ -47,6 +47,39 @@ a {
 #about li {
 	margin-bottom: 1em;
 }
+
+/* */
+#settings {
+	padding: 5px;
+	margin: 0;
+
+	position: absolute;
+	top: 50px;
+	bottom: 25%;
+	left: 0;
+	right: 0;
+
+	background: #FFD;
+}
+
+#settings {
+	display: none;
+	z-index: 1;
+	padding: 10px 40px;
+	font-size: 16px;
+	font-family: Georgia, serif;
+	overflow: auto;
+}
+#settings p {
+	max-width: 520px;
+}
+#settins ul {
+	max-width: 480px;
+}
+#settings li {
+	margin-bottom: 1em;
+}
+
 #code, pre, .lines {
 	font-family: Menlo, Courier New, monospace;
 	font-size: 11pt;
@@ -100,6 +133,11 @@ a {
 }
 #aboutControls {
 	float: right;
+	padding: 10px;
+}
+
+#settings {
+	float: left;
 	padding: 10px;
 }
 

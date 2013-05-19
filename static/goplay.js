@@ -11,6 +11,7 @@
 
 /* Various HTML elements we will need information about */
 var aboutEl;
+var settingsEl;
 
 function serverReachable() {
     // IE vs. standard XHR creation
@@ -79,6 +80,16 @@ function onSave() {
     }
 }
 
+function onTabSet() {
+    var tab_width = document.getElementById("tabSetting").value;
+    if (isFinite(tab_width) && tab_width > 2 && tab_width < 10) {
+	var code = document.getElementById("code");
+	code.style.tabSize = tab_width;
+    } else {
+	alert("Tab width should be a number between 2 and 10");
+    }
+}
+
 function onLoad(evt) {
     // Loop through the FileList looking for go files.
     var file = evt.target.files[0]; // FileList object
@@ -110,6 +121,7 @@ var xml_req;
 function onFormat() {
     if (!serverReachable()) { return };
     aboutEl.hide();
+    SettingsEl.hide();
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
         type: "POST",
@@ -130,6 +142,7 @@ function onFormat() {
 function onRun() {
     if (!serverReachable()) { return };
     aboutEl.hide();
+    settingsEl.hide();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
     var output = document.getElementById('output');
@@ -311,6 +324,7 @@ $(document).ready(function() {
 
     $('#code').linedtextarea();
     aboutEl = $('#about');
+    settingsEl = $('#settings');
 
     aboutEl.click(function(e) {
         if ($(e.target).is('a')) {
@@ -323,10 +337,29 @@ $(document).ready(function() {
             aboutEl.hide();
             return;
         }
+        settingsEl.hide();
         aboutEl.show();
+    })
+    settingsEl.click(function(e) {
+        if ($(e.target).is('a')) {
+            return;
+        }
+        settingsEl.hide();
+    });
+    $('#settingsButton').click(function() {
+        if (settingsEl.is(':visible')) {
+            settingsEl.hide();
+            return;
+        }
+        aboutEl.hide();
+        settingsEl.show();
+    })
+    $('#tabSetting').click(function() {
+        onTabSet();
     })
     $('#save').click(function() {
         aboutEl.hide();
+        settingsEl.hide();
         onSave();
     })
     $('#fmt').click(function() {
@@ -336,6 +369,7 @@ $(document).ready(function() {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
         aboutEl.hide();
+        settingsEl.hide();
     } else {
         load.hide();
     }
