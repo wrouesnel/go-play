@@ -80,19 +80,51 @@ function onSave() {
     }
 }
 
-function onTabSet() {
-    var tab_width = document.getElementById("tabSetting").value;
-    if (isFinite(tab_width) && tab_width > 2 && tab_width < 10) {
+// Handle input from the settings tab.
+function handleSettings() {
+    var tab_width = document.playsettings.tabSetting.value;
+    if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
 	var code = document.getElementById("code");
 	code.style.tabSize = tab_width;
     } else {
-	alert("Tab width should be a number between 2 and 10");
+	alert("Tab width should be a number between 2 and 10 inclusive: got " + tab_width);
+    }
+    return false; // prevent further bubbling of event
+}
+
+// This is called with the "About" button is clicked and we want to
+// show that info or when show is false, we want to hide the tab.
+function onAbout(show) {
+    if (aboutEl.is(':visible')) {
+	document.getElementById("aboutButton").value="About";
+        aboutEl.hide();
+        return;
+    }
+    if (show) {
+	onSettings(false);
+	document.getElementById("aboutButton").value="Code";
+	aboutEl.show();
     }
 }
 
-function onLoad(evt) {
+// This is called with the "Settings" button is clicked and we want to
+// show that info or when show is false, we want to hide the tab.
+function onSettings(show) {
+    if (settingsEl.is(':visible')) {
+	document.getElementById("settingsButton").value="Settings";
+        settingsEl.hide();
+        return;
+    }
+    if (show) {
+	onAbout(false);
+	document.getElementById("settingsButton").value="Code";
+	settingsEl.show();
+    }
+}
+
+function onLoad(event) {
     // Loop through the FileList looking for go files.
-    var file = evt.target.files[0]; // FileList object
+    var file = event.target.files[0]; // FileList object
     var data = ""
     var reader = new FileReader();
 
@@ -101,9 +133,7 @@ function onLoad(evt) {
     reader.onload = (function(theFile) {
         return function(e) {
             data = e.target.result;
-	    if (data != "") {
-		document.getElementById("code").value = data;
-	    }
+	    if (data != "") { setGoCodeBody(data); };
         };
     })(file);
     reader.readAsText(file);
@@ -111,6 +141,8 @@ function onLoad(evt) {
     if (reader.result != "") {
         document.getElementById("code").value = reader.result;
     }
+    onSettings(false);
+    onAbout(false);
     document.getElementById("saveLoc").value = file.name;
     onClearOutput();
     document.getElementById("errors").innerHTML = "";
@@ -121,7 +153,7 @@ var xml_req;
 function onFormat() {
     if (!serverReachable()) { return };
     aboutEl.hide();
-    SettingsEl.hide();
+    settingsEl.hide();
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
         type: "POST",
@@ -324,7 +356,7 @@ $(document).ready(function() {
 
     $('#code').linedtextarea();
     aboutEl = $('#about');
-    settingsEl = $('#settings');
+    settingsEl = $('#playsettings');
 
     aboutEl.click(function(e) {
         if ($(e.target).is('a')) {
@@ -332,34 +364,11 @@ $(document).ready(function() {
         }
         aboutEl.hide();
     });
-    $('#aboutButton').click(function() {
-        if (aboutEl.is(':visible')) {
-            aboutEl.hide();
-            return;
-        }
-        settingsEl.hide();
-        aboutEl.show();
-    })
-    settingsEl.click(function(e) {
-        if ($(e.target).is('a')) {
-            return;
-        }
-        settingsEl.hide();
-    });
-    $('#settingsButton').click(function() {
-        if (settingsEl.is(':visible')) {
-            settingsEl.hide();
-            return;
-        }
-        aboutEl.hide();
-        settingsEl.show();
-    })
-    $('#tabSetting').click(function() {
-        onTabSet();
-    })
+    $('#aboutButton').click(function() { onAbout(true); })
+    $('#settingsButton').click(function() { onSettings(true); })
     $('#save').click(function() {
-        aboutEl.hide();
-        settingsEl.hide();
+	onAbout(false);
+        onSettings(false);
         onSave();
     })
     $('#fmt').click(function() {
@@ -368,8 +377,8 @@ $(document).ready(function() {
     if (have_file_support()) {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
-        aboutEl.hide();
-        settingsEl.hide();
+        onAbout(false);
+        onSettings(false);
     } else {
         load.hide();
     }

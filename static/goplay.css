@@ -17,7 +17,13 @@ body {
 a {
 	color: #009;
 }
+
+/*********************************************************
+  The about page, program display area, and settings
+  should occupy the same place. They overlay each other.
+**********************************************************/
 #wrap,
+#playsettings,
 #about {
 	padding: 5px;
 	margin: 0;
@@ -30,6 +36,11 @@ a {
 
 	background: #FFD;
 }
+
+/*********************************************************
+   There is an "about" page which is text taht gives some
+   idea of what we are about
+**********************************************************/
 #about {
 	display: none;
 	z-index: 1;
@@ -48,10 +59,12 @@ a {
 	margin-bottom: 1em;
 }
 
-/* */
-#settings {
-	padding: 5px;
+/*****************************************************************
+  There is a Settings page which influences the overall behavior
+******************************************************************/
+#playsettings {
 	margin: 0;
+	float: left;
 
 	position: absolute;
 	top: 50px;
@@ -62,7 +75,7 @@ a {
 	background: #FFD;
 }
 
-#settings {
+#playsettings {
 	display: none;
 	z-index: 1;
 	padding: 10px 40px;
@@ -70,15 +83,31 @@ a {
 	font-family: Georgia, serif;
 	overflow: auto;
 }
-#settings p {
+#playsettings p {
 	max-width: 520px;
 }
-#settins ul {
+#playsettings ul {
 	max-width: 480px;
 }
-#settings li {
+#playsettings li {
 	margin-bottom: 1em;
 }
+
+/* h1 seems to interfere with buster, so use h2. */
+#playsettings h2 {
+	font-size: 14pt;
+}
+
+/********************************************************
+  Buster usings a div called "setings". Don't confuse
+  this with the go play settings page.
+**********************************************************/
+#settings {
+	float: left;
+	padding: 10px;
+}
+
+/******************************************************************/
 
 #code, pre, .lines {
 	font-family: Menlo, Courier New, monospace;
@@ -131,13 +160,8 @@ a {
 	float: left;
 	padding: 10px;
 }
-#aboutControls {
+#sectionTabs {
 	float: right;
-	padding: 10px;
-}
-
-#settings {
-	float: left;
 	padding: 10px;
 }
 
