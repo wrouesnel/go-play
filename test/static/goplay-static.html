@@ -35,10 +35,11 @@ package main
 
 import "fmt"
 
-func main() {
+func main( {
 	fmt.Println("hello, world")
 }
-</textarea>
+</textarea> <!-- Deliberate error above -->
+
       <div class="hints">
 	<p>
 	(Shift-Enter to compile and run.)&nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,10 +53,12 @@ func main() {
 	</div>
 	<div id="output"></div>
       </div>
-      <div id="errors"></div>
+      <div id="errors">
+<pre>prog.go:6:12: expected type, found '{' (and 2 more errors)</pre>
+</div>
     </div>
-    <script type="text/javascript" src="buster-test.js"></script>
-    <script type="text/javascript" src="static-test.js"></script>
+    <!-- <script type="text/javascript" src="buster-test.js"></script> -->
+    <!-- <script type="text/javascript" src="static-test.js"></script> -->
     <div id="about">
 <p><b>About Go Play</b></p>
 
