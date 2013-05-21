@@ -13,7 +13,6 @@
   function playground(opts) {
     var code = $(opts.codeEl);
 
-    code.unbind('keydown').bind('keydown', keyHandler);
     var outdiv = $(opts.outputEl).empty();
     var output = $('<pre/>').appendTo(outdiv);
 

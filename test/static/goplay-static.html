@@ -33,12 +33,12 @@
 		onkeyup="autocompile();">
 package main
 
-import "fmt"
+import "fmt
 
 func main( {
-	fmt.Println("hello, world")
+	fm.Println("hello, world")
 }
-</textarea> <!-- Deliberate error above -->
+</textarea> <!-- " <!-- Deliberate error above -->
 
       <div class="hints">
 	<p>
@@ -54,11 +54,20 @@ func main( {
 	<div id="output"></div>
       </div>
       <div id="errors">
-<pre>prog.go:6:12: expected type, found '{' (and 2 more errors)</pre>
+  <a href="/error">./compile0.go:3: imported and not used: "fmt"</a>
+  <br>
+  <a href="/error">./compile0.go:6: undefined: fm</a>
+  <a href="/error">can't load package: package : </a>
+  <br>
+  <a href="/error">compile2.go:3:8: string not terminated</a>
+  <br>
+  <a href="/error">compile2.go:5:1: expected ';', found 'func'</a>
+  <br>
+  <a href="/error"></a>
 </div>
     </div>
-    <!-- <script type="text/javascript" src="buster-test.js"></script> -->
-    <!-- <script type="text/javascript" src="static-test.js"></script> -->
+    <script type="text/javascript" src="buster-test.js"></script>
+    <script type="text/javascript" src="static-test.js"></script>
     <div id="about">
 <p><b>About Go Play</b></p>
 

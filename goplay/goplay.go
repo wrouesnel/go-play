@@ -51,6 +51,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
@@ -82,7 +83,9 @@ func FmtHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	body, err := gofmt(req.FormValue("body"))
 	if err != nil {
-		resp.Error = fmt.Sprintf("<pre>%s</pre>", err.Error())
+		resp.Error =
+			fmt.Sprintf("<pre><a href=\"/error\">%s</a></pre>",
+			err.Error())
 	} else {
 		resp.Body = body
 	}
@@ -303,10 +306,12 @@ func compile(req *http.Request) (out []byte, err error) {
 // The JavaScript interface uses the 404 status code to identify the error.
 func error_(w http.ResponseWriter, out []byte, err error) {
 	w.WriteHeader(404)
-	if out != nil {
-		output.Execute(w, out)
-	} else {
-		output.Execute(w, err.Error())
+	str := string(out)
+	if out == nil {
+		str = string(err.Error()[:])
+	}
+	for _, line := range strings.Split(str, "\n") {
+		errput.Execute(w, line)
 	}
 }
 
@@ -324,6 +329,9 @@ func run(dir string, args ...string) ([]byte, error) {
 // HTML output template snippet
 const outputText = `<pre>{{printf "%s" . |html}}</pre>`
 var output = template.Must(template.New("output").Parse(outputText))
+
+const errorText = `<a href="/error">{{printf "%s" . |html}}</a></br>`
+var errput = template.Must(template.New("errput").Parse(errorText))
 
 
 // Default program to start out with.

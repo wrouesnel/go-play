@@ -177,6 +177,14 @@ function onFormat() {
     });
 }
 
+// Handle next error positioning
+function onJumpToErrorPos(event) {
+    var error_line = event.target.innerHTML;
+    positionOnError(error_line);
+    event.preventDefault();
+    return false; //for good measure
+}
+
 // Compile and run go program.
 function onRun() {
     if (!serverReachable()) { return };
@@ -294,10 +302,31 @@ function autocompile() {
 function setError(error) {
     lineClear();
     lineHighlight(error);
-    document.getElementById("errors").innerHTML = error;
+    document.getElementById("errors").innerHTML = "<pre>" + error + "</pre>";
 }
 
 var errorLines = [];
+
+function positionOnError(error) {
+    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)(?::([0-9]+))?/g;
+    var r = regex.exec(error);
+    if (r) {
+	var columnOffset;
+	if (r[2]) {
+	    columnOffset = +r[2];
+	} else {
+	    columnOffset = 1;
+	}
+	// Position cursor on first error
+	var errPos = helper.line2Offset(goCodeBody(), +r[1]) + columnOffset;
+	var codeEl = document.getElementById("code");
+	setTimeout(function() {
+	    codeEl.focus();
+	    codeEl.setSelectionRange(errPos-1, errPos);
+	}, 1);
+    }
+    return r
+}
 
 /* Parse *error*, pulling out any error line numbers and a column
    number for the first error if that exists. Those lines extracted
@@ -306,26 +335,18 @@ var errorLines = [];
    information, we highlight that by making that position be the
    selected area.
 */
-function lineHighlight(error) {
-    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)(?::([0-9]+))?/g;
-    var r = regex.exec(error);
-    if (r && r[2]) {
-	// Position cursor on first error
-	var errPos = helper.line2Offset(goCodeBody(), +r[1]) + +r[2]
-	var codeEl = document.getElementById("code");
-	setTimeout(function() {
-	    codeEl.focus();
-	    codeEl.setSelectionRange(errPos-1, errPos);
-	}, 1);
-    }
+function lineHighlight(errors) {
     var i;
+    // FIXME: dry code.
+    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)(?::([0-9]+))?/g;
+    var r = positionOnError(errors);
     for(i=0; i<errorLines.length; i++) {
         $(".lines div").eq(errorLines[i]-1).removeClass("lineerror");
     }
     while (r) {
 	errorLines[i] = +r[1];
         $(".lines div").eq(r[1]-1).addClass("lineerror");
-        r = regex.exec(error);
+        r = regex.exec(errors);
     }
 }
 
@@ -360,6 +381,8 @@ $(document).ready(function() {
     });
 
     $('#code').linedtextarea();
+    $('#code').unbind('keydown').bind('keydown', keyHandler);
+
     aboutEl = $('#about');
     settingsEl = $('#playsettings');
 
@@ -371,6 +394,9 @@ $(document).ready(function() {
     });
     $('#aboutButton').click(function() { onAbout(true); })
     $('#settingsButton').click(function() { onSettings(true); })
+    $('#tabSetting').click(function() {
+        onTabSet();
+    })
     $('#save').click(function() {
 	showCodeTab();
         onSave();
@@ -378,6 +404,9 @@ $(document).ready(function() {
     $('#fmt').click(function() {
         onFormat();
     })
+    $("#errors").click(function(event){
+	onJumpToErrorPos(event);
+    });
     if (haveFileSupport()) {
         document.getElementById('load').addEventListener('change', onLoad,
 							 false);
