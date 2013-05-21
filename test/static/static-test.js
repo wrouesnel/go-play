@@ -6,6 +6,7 @@ if (typeof require == "function" && typeof module == "object") {
 
 // Put this in a setup function to make not global?
 var aboutEl = $('#about');
+var codeEl = document.getElementById("code");
 var settingsEl = $('#settings');
 var aboutButton = document.getElementById("aboutButton");
 var settingsButton = document.getElementById("settingsButton");
@@ -34,7 +35,7 @@ buster.testCase("Static goplay tests", {
         assert.equals(aboutEl.is(':visible'), true,
 		     "'about' tab should be visible after showing");
 	assert.equals(aboutButton.value, "Code",
-		     "'about' button should be labled 'Code' when visible");
+		     "'about' button should be labeled 'Code' when visible");
         assert.equals(settingsEl.is(':visible'), false);
         aboutEl.hide();
     },
@@ -50,5 +51,16 @@ buster.testCase("Static goplay tests", {
     	// var aboutEl = $('#about');
         // assert.equals(aboutEl.is(':visible'), false);
         settingsEl.hide();
+    },
+    "Error positioning selects correctly": function () {
+	setGoCodeBody("fmt\n\nfunc main( {\n	fm.Println(\"hello, world\")\n}\n");
+	var r = positionOnError("compile2.go:3:8: string not terminated");
+        assert.equals(r[1], "3", "Error position regexp matches line:col line");
+        assert.equals(r[2], "8", "Error position regexp matches column");
+	var r = positionOnError("./compile0.go:6: undefined: fm");
+        assert.equals(r[1], "6", "Error position regexp matches line-only line");
+        refute.defined(r[2], null, "Error position regexp matches line-only column");
+        // assert.equals(codeEl.selectionStart, 1);
+        // assert.equals(codeEl.selectionEnd, 2);
     },
 });
