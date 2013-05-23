@@ -10,11 +10,12 @@
 "use strict"
 
 /* Various HTML elements we will need information about */
-var aboutEl;
-var settingsEl;
-var ws;
-var startTime;
-var killed;
+var aboutEl;      // about button element
+var settingsEl;   // Settings button element
+var ws;           // Websokect object
+var startTime;    // Date: Time when last run started;
+var killed;       // boolean: true iff run was killed.
+var useWs = true; // booleand: we should use websocket?
 
 function init() {
     // Websocket stuff
@@ -84,12 +85,14 @@ function haveFileSupport() {
 // Handle input from the settings tab.
 function handleSettings() {
     var tab_width = document.playsettings.tabSetting.value;
+    useWs = document.playsettings.websocket.checked
     if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
 	var code = document.getElementById("code");
 	code.style.tabSize = tab_width;
     } else {
 	alert("Tab width should be a number between 2 and 10 inclusive: got " + tab_width);
     }
+
     return false; // prevent further bubbling of event
 }
 
@@ -238,8 +241,16 @@ function onJumpToErrorPos(event) {
     return false; //for good measure
 }
 
-// Compile and run go program.
 function onRun() {
+    if (ws != null && useWs) {
+	onWSRun();
+    } else {
+	onPOSTRun();
+    }
+}
+
+// Compile and run go program via HTTP POST
+function onPOSTRun() {
     if (!serverReachable()) { return };
     showCodeTab();
     var clear = document.getElementById('clearbutton');
@@ -258,7 +269,7 @@ function onRun() {
     killed = false;
 }
 
-// Compile and run go program.
+// Compile and run go program via websocket.
 function onWSRun() {
     if (!serverReachable()) { return };
     showCodeTab();
@@ -366,11 +377,7 @@ function keyHandler(event) {
         return false;
     } else if (e.keyCode == 13) { // enter
         if (e.shiftKey) { // +shift
-	    if (ws != null) {
-		onWSRun(e.target);
-	    } else {
-		onRun(e.target);
-	    }
+	    onRun();
             preventDefault(e);
             return false;
         } else {
