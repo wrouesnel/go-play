@@ -112,8 +112,8 @@ function runExited() {
     var timeDiff = new Date() - startTime;
     var reason = '';
     if (killed) reason = 'via kill ';
-    exit.text(sprintf("\nProgram exited %s%s.",
-		      reason, time2string(timeDiff)));
+    exit.text(fmt.sprintf("\nProgram exited %s%s.",
+			  reason, timediff.time2string(timeDiff)));
     exit.appendTo(document.getElementById("output"));
     lineHighlight(document.getElementById("errors").textContent)
     var run = document.getElementById('runbutton');
@@ -255,6 +255,8 @@ function onPOSTRun() {
     showCodeTab();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
+    var kill = document.getElementById('killbutton');
+    kill.hidden = true;
     var output = document.getElementById('output');
     output.style.display = "block";
 

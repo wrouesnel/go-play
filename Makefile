@@ -23,7 +23,7 @@ test: check
 
 #: node.js checks
 node-checks: test/node_modules
-	cd test && node nodejs/basic-test.js
+	cd test/nodejs && for test in *-test.js; do node $$test; done
 
 #: static HTML checks
 static-checks: test/node_modules
