@@ -235,7 +235,7 @@ div.output .stdout, div.output pre {
 div.output .stderr, div.output .error {
   color: rgb(244, 74, 63);
 }
-div.output .system, div.output .exit {
+div.output .system, div.output {
   color: rgb(255, 209, 77)
 }
 .buttons {
@@ -292,6 +292,7 @@ div.errors .system, div.errors .exit {
   top: -60px;
   right: 10px;
 }
+
 div.errors .buttons {
   position: absolute;
   float: none;

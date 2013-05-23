@@ -12,6 +12,44 @@
 /* Various HTML elements we will need information about */
 var aboutEl;
 var settingsEl;
+var ws;
+
+function init() {
+    // Websocket stuff
+    if (ws != null) {
+	ws.close();
+	ws = null;
+    }
+
+    try {
+	ws = new WebSocket("ws://localhost:3998/wscompile");
+	ws.onopen = function () {
+	    // FIXME: do something here...
+	};
+	ws.onmessage = function(m) {
+            var result = eval('(' + m.data + ')');
+            if (result.Kind == 'stdout') {
+		var line = $('<pre/>');
+		line.text(result.Body);
+		line.appendTo(document.getElementById("output"));
+            } else if (result.Kind == 'stderr') {
+		var error = $('<pre/>');
+		error.text(result.Body);
+		error.appendTo(document.getElementById("errors"));
+            } else if (result.Kind == 'end') {
+		var exit = $('<span class="exit"/>');
+		exit.text("\nProgram exited.");
+		exit.appendTo(document.getElementById("output"));
+		lineHighlight(document.getElementById("errors").textContent)
+            }
+	}
+	ws.onclose = function (e) {
+	    // FIXME: do something?
+	};
+    } catch(err) {
+	alert("Websocket failure");
+    }
+}
 
 function serverReachable() {
     // IE vs. standard XHR creation
@@ -130,7 +168,7 @@ function showCodeTab() {
 }
 
 
-function onLoad(event) {
+function onFileLoad(event) {
     // Loop through the FileList looking for go files.
     var file = event.target.files[0]; // FileList object
     var data = ""
@@ -202,6 +240,21 @@ function onRun() {
     xh_req.open("POST", "/compile", true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     xh_req.send(go_code);
+}
+
+// Compile and run go program.
+function onWSRun() {
+    if (!serverReachable()) { return };
+    showCodeTab();
+    var clear = document.getElementById('clearbutton');
+    clear.hidden = false;
+    var output = document.getElementById('output');
+    output.innerHTML = "";
+    output.style.display = "block";
+
+    var go_code =  goCodeBody();
+    var msg = {Id: "0", Kind: "run", Body: go_code};
+    ws.send(JSON.stringify(msg));
 }
 
 function onClearOutput() {
@@ -280,7 +333,11 @@ function keyHandler(event) {
         return false;
     } else if (e.keyCode == 13) { // enter
         if (e.shiftKey) { // +shift
-            onRun(e.target);
+	    if (ws != null) {
+		onWSRun(e.target);
+	    } else {
+		onRun(e.target);
+	    }
             preventDefault(e);
             return false;
         } else {
@@ -371,6 +428,7 @@ function compileUpdate() {
 }
 
 $(document).ready(function() {
+    init();
     playground({
         'outputEl':   '#output',
         'fmtEl':      '#fmt',
@@ -408,7 +466,7 @@ $(document).ready(function() {
 	onJumpToErrorPos(event);
     });
     if (haveFileSupport()) {
-        document.getElementById('load').addEventListener('change', onLoad,
+        document.getElementById('load').addEventListener('change', onFileLoad,
 							 false);
         showCodeTab();
     } else {
