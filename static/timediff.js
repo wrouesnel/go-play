@@ -18,7 +18,7 @@ function time2string(timeDiff) {
     // remove seconds from the date
     timeDiff /= Math.round(60);
 
-    if (timeDiff === 0) {
+    if (timeDiff < 1) {
 	return sprintf("%d.%d secs", seconds, milliseconds);
     }
 

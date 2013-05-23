@@ -198,7 +198,8 @@ input[type=button]:hover {
 	background: #FDD;
 }
 .exit {
-	color: lightgray;
+	color: rgb(255, 209, 77)
+	/* color: lightgray; */
 }
 
 div.output {

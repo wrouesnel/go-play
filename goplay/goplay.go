@@ -221,7 +221,7 @@ func init() {
 // It handles transcoding Messages to and from JSON format, and handles starting
 // and killing processes.
 func WSCompileRunHandler(c *websocket.Conn) {
-	fmt.Printf("CompileRunServer %#v\n", c.Config())
+	c.Config()
 	in, out := make(chan *Message), make(chan *Message)
 	errc := make(chan error, 1)
 

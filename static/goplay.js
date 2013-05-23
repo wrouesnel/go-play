@@ -14,6 +14,7 @@ var aboutEl;
 var settingsEl;
 var ws;
 var startTime;
+var killed;
 
 function init() {
     // Websocket stuff
@@ -38,13 +39,7 @@ function init() {
 		error.text(result.Body);
 		error.appendTo(document.getElementById("errors"));
             } else if (result.Kind == 'end') {
-		var exit = $('<span class="exit"/>');
-		// time difference in ms
-		var timeDiff = new Date() - startTime;
-		exit.text(sprintf("\nProgram exited %s.",
-				  time2string(timeDiff)));
-		exit.appendTo(document.getElementById("output"));
-		lineHighlight(document.getElementById("errors").textContent)
+		runExited();
             }
 	}
 	ws.onclose = function (e) {
@@ -106,6 +101,22 @@ function goCodeBody() {
 // Return a string containing the Go code.
 function setGoCodeBody(text) {
     return document.getElementById("code").value = text;
+}
+
+function runExited() {
+    var exit = $('<span class="exit"/>');
+    // time difference in ms
+    var timeDiff = new Date() - startTime;
+    var reason = '';
+    if (killed) reason = 'via kill ';
+    exit.text(sprintf("\nProgram exited %s%s.",
+		      reason, time2string(timeDiff)));
+    exit.appendTo(document.getElementById("output"));
+    lineHighlight(document.getElementById("errors").textContent)
+    var run = document.getElementById('runbutton');
+    run.hidden = false;
+    var kill = document.getElementById('killbutton');
+    kill.hidden = true;
 }
 
 // We come here when the "save" button is clicked
@@ -244,6 +255,7 @@ function onRun() {
     xh_req.open("POST", "/compile", true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     xh_req.send(go_code);
+    killed = false;
 }
 
 // Compile and run go program.
@@ -252,6 +264,10 @@ function onWSRun() {
     showCodeTab();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
+    var kill = document.getElementById('killbutton');
+    kill.hidden = false;
+    var run = document.getElementById('runbutton');
+    run.hidden = true;
     var output = document.getElementById('output');
     output.innerHTML = "";
     output.style.display = "block";
@@ -261,6 +277,17 @@ function onWSRun() {
     // record start time
     startTime = new Date();
     ws.send(JSON.stringify(msg));
+    killed = false;
+}
+
+// Compile and run go program.
+function onWSKill() {
+    if (!serverReachable()) { return };
+    showCodeTab();
+    var output = document.getElementById('output');
+    var msg = {Id: "0", Kind: "kill", Body: ""};
+    ws.send(JSON.stringify(msg));
+    killed = true;
 }
 
 function onClearOutput() {
@@ -482,8 +509,13 @@ $(document).ready(function() {
     close.innerHTML="Clear";
     close.hidden = true;
     close.addEventListener('click', onClearOutput, false);
+    var kill = document.getElementById('killbutton');
+    kill.innerHTML="Kill";
+    kill.hidden = true;
+    kill.addEventListener('click', onWSKill, false);
     var run = document.getElementById('runbutton');
     run.addEventListener('click', onRun, false);
     run.innerHTML="Run";
     run.hidden = false;
+    close.addEventListener('click', onWSKill, false);
 });
