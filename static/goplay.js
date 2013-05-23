@@ -13,6 +13,7 @@
 var aboutEl;
 var settingsEl;
 var ws;
+var startTime;
 
 function init() {
     // Websocket stuff
@@ -38,7 +39,10 @@ function init() {
 		error.appendTo(document.getElementById("errors"));
             } else if (result.Kind == 'end') {
 		var exit = $('<span class="exit"/>');
-		exit.text("\nProgram exited.");
+		// time difference in ms
+		var timeDiff = new Date() - startTime;
+		exit.text(sprintf("\nProgram exited %s.",
+				  time2string(timeDiff)));
 		exit.appendTo(document.getElementById("output"));
 		lineHighlight(document.getElementById("errors").textContent)
             }
@@ -254,6 +258,8 @@ function onWSRun() {
 
     var go_code =  goCodeBody();
     var msg = {Id: "0", Kind: "run", Body: go_code};
+    // record start time
+    startTime = new Date();
     ws.send(JSON.stringify(msg));
 }
 
