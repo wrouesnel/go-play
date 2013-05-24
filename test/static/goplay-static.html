@@ -15,7 +15,7 @@
     <script src="../../static/timediff.js"></script>
     <script src="../../static/goplay.js"></script>
   </head>
-  <body itemscope itemtype="http://schema.org/CreativeWork">
+  <body itemscope itemtype="http://schema.org/CreativeWork" onLoad="init()">
     <div id="banner">
       <div id="head" itemprop="name">Go Play</div>
       <div id="controls">
@@ -49,23 +49,21 @@ func main( {
       </div>
       <div class="output">
 	<div class="buttons">
-	  <button class="run" id="runbutton">Run</button>
-	  <!-- <button class="kill">Kill</button> -->
+	  <button class="run"   id="runbutton">Run</button>
+	  <button class="kill"  id="killbutton">Kill</button>
 	  <button class="close" id="clearbutton">Close</button>
 	</div>
 	<div id="output"></div>
       </div>
       <div id="errors">
+  <pre>
   <a href="/error">./compile0.go:3: imported and not used: "fmt"</a>
-  <br>
   <a href="/error">./compile0.go:6: undefined: fm</a>
-  <a href="/error">can't load package: package : </a>
-  <br>
+  can't load package: package :
   <a href="/error">compile2.go:3:8: string not terminated</a>
-  <br>
   <a href="/error">compile2.go:5:1: expected ';', found 'func'</a>
-  <br>
   <a href="/error"></a>
+  </pre>
 </div>
     </div>
     <script type="text/javascript" src="buster-test.js"></script>
@@ -91,6 +89,8 @@ at <a href="https://code.google.com/p/go-play/">https://code.google.com/p/go-pla
       <h2>Settings</h2>
 
       <form name="playsettings" onSubmit="return handleSettings()">
+	<input type="checkbox" id="websocket"
+	       value="true" checked/>Use Websocket</br>
 	<p><b>tab size:</b> <input name="tabSetting" type="text" value="4"></p>
 	<input name="Submit"  type="submit" value="Update"/>
       </form>

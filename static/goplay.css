@@ -38,7 +38,7 @@ a {
 }
 
 /*********************************************************
-   There is an "about" page which is text taht gives some
+   There is an "about" page which is text that gives some
    idea of what we are about
 **********************************************************/
 #about {
@@ -239,15 +239,18 @@ div.output .stderr, div.output .error {
 div.output .system, div.output {
   color: rgb(255, 209, 77)
 }
-.buttons {
-  position: relative;
-  float: right;
-  top: -60px;
-  right: 10px;
-}
-div.output .buttons {
+div.output {
   /*position: absolute;*/
-  /*float: none;*/
+  z-index: 1;
+  float: none;
+  top: auto;
+  right: 5px;
+  bottom: 5px;
+}
+
+div.buttons {
+  position: absolute;
+  float: top;
   top: auto;
   right: 5px;
   bottom: 5px;
@@ -286,12 +289,6 @@ div.errors .stderr, div.errors .error {
 }
 div.errors .system, div.errors .exit {
   color: rgb(255, 209, 77)
-}
-.buttons {
-  position: relative;
-  float: right;
-  top: -60px;
-  right: 10px;
 }
 
 div.errors .buttons {

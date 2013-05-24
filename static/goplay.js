@@ -40,7 +40,7 @@ function init() {
 		error.text(result.Body);
 		error.appendTo(document.getElementById("errors"));
             } else if (result.Kind == 'end') {
-		runExited();
+		runExited(result.Body);
             }
 	}
 	ws.onclose = function (e) {
@@ -106,14 +106,20 @@ function setGoCodeBody(text) {
     return document.getElementById("code").value = text;
 }
 
-function runExited() {
+function runExited(exitMsg) {
     var exit = $('<span class="exit"/>');
     // time difference in ms
     var timeDiff = new Date() - startTime;
     var reason = '';
     if (killed) reason = 'via kill ';
-    exit.text(fmt.sprintf("\nProgram exited %s%s.",
-			  reason, timediff.time2string(timeDiff)));
+    var exitInfo = fmt.sprintf("\nProgram exited %s%s",
+			      reason, timediff.time2string(timeDiff));
+    if (exitMsg) {
+	exitInfo += ' - ' + exitMsg;
+    } else {
+	exitInfo += '.';
+    }
+    exit.text(exitInfo);
     exit.appendTo(document.getElementById("output"));
     lineHighlight(document.getElementById("errors").textContent)
     var run = document.getElementById('runbutton');
@@ -284,6 +290,8 @@ function onWSRun() {
     var output = document.getElementById('output');
     output.innerHTML = "";
     output.style.display = "block";
+    var errors = document.getElementById("errors").innerHTML = "";
+    errors.innerHTML = "";
 
     var go_code =  goCodeBody();
     var msg = {Id: "0", Kind: "run", Body: go_code};
