@@ -103,6 +103,7 @@ function goCodeBody() {
 
 // Return a string containing the Go code.
 function setGoCodeBody(text) {
+    lineClear(); // Nuke any previous error marks
     return document.getElementById("code").value = text;
 }
 
@@ -121,7 +122,11 @@ function runExited(exitMsg) {
     }
     exit.text(exitInfo);
     exit.appendTo(document.getElementById("output"));
-    lineHighlight(document.getElementById("errors").textContent)
+    var errorText = document.getElementById("errors").textContent;
+    lineHighlight(errorText)
+    var linkedErrorText = fmt.sprintf("<pre>%s</pre>",
+				      linkerror.linkErrorOutput(errorText));
+    document.getElementById("errors").innerHTML=linkedErrorText;
     var run = document.getElementById('runbutton');
     run.hidden = false;
     var kill = document.getElementById('killbutton');
