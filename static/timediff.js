@@ -1,3 +1,4 @@
+// Javascript function show compute elapsed time
 "use strict";
 if (typeof require === "function" && typeof module !== "undefined") {
     var fmt  = require("./fmt");
