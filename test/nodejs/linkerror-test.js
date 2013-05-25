@@ -13,14 +13,18 @@ if (typeof require === "function" && typeof module !== "undefined") {
 		'./compile0.go:6: undefined: fm',
 		"can't load package: package :",
 		'compile2.go:3:8: string not terminated',
-		"compile2.go:5:1: expected ';', found 'func'"
+		"compile2.go:5:1: expected ';', found 'func'",
+		"main.main()",
+		"	main.go:9 +0x81"
 	    ].join("\n");
 	    var taggedString = [
 		'<a href="/error">./compile0.go:3: imported and not used: "fmt"</a>',
 		'<a href="/error">./compile0.go:6: undefined: fm</a>',
 		"can't load package: package :",
 		'<a href="/error">compile2.go:3:8: string not terminated</a>',
-		"<a href=\"/error\">compile2.go:5:1: expected ';', found 'func'</a>"
+		"<a href=\"/error\">compile2.go:5:1: expected ';', found 'func'</a>",
+		"main.main()",
+		"<a href=\"/error\">	main.go:9 +0x81</a>",
 	    ].join("\n");
             assert.equals(linkerror.linkErrorOutput(inputString),
 			  taggedString);

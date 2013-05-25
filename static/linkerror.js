@@ -6,7 +6,7 @@ if (typeof require == "function" && typeof module == "object") {
 var linkerror = (function (global) {
     "use strict";
 
-    var errorRegex = /(?:compile[0-9]+|prog)\.go:(?:[0-9]+)/;
+    var errorRegex = /(?:compile[0-9]+|prog|main)\.go:(?:[0-9]+)/;
 
     // split the text area content into region before start and region after
     // end two, and insert n tabs

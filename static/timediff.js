@@ -6,6 +6,8 @@ if (typeof require === "function" && typeof module !== "undefined") {
 
 var timediff = (function (global) {
     function time2string(timeDiff) {
+
+	if (timeDiff == null) return "time unknown";
 	var milliseconds = timeDiff % 1000;
 
 	// strip the milliseconds

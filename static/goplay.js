@@ -299,6 +299,7 @@ function runViaPOST() {
     xh_req.onreadystatechange = runUpdate;
     xh_req.open("POST", "/compile", true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
+    startTime = new Date();
     xh_req.send(go_code);
     killed = false;
 }
@@ -466,7 +467,7 @@ function setError(error) {
 var errorLines = [];
 
 function positionOnError(error) {
-    var regex = /(?:compile[0-9]+|prog)\.go:([0-9]+)(?::([0-9]+))?/g;
+    var regex = /(?:compile[0-9]+|prog|main)\.go:([0-9]+)(?::([0-9]+))?/g;
     var r = regex.exec(error);
     if (r) {
 	var columnOffset;
@@ -519,15 +520,28 @@ function runUpdate() {
         return;
     }
 
+    var timeDiff = new Date() - startTime;
     if(xh_req.status == 200) {
-        document.getElementById("output").innerHTML = xh_req.responseText;
+	onClearOutput();
+	var output = $('<pre/>');
+	output.text(xh_req.responseText);
+	output.appendTo(document.getElementById("output"));
         document.getElementById("errors").innerHTML = "";
 	lineClear();
     } else {
-        document.getElementById("errors").innerHTML = xh_req.responseText;
-        lineHighlight(document.getElementById("errors").textContent)
+	var errorText = xh_req.responseText;
+	lineHighlight(errorText)
+	var linkedErrorText = fmt.sprintf("<pre>%s</pre>",
+					  linkerror.linkErrorOutput(errorText));
+	document.getElementById("errors").innerHTML=linkedErrorText;
 	onClearOutput();
     }
+    var exitInfo = fmt.sprintf("\nProgram exited %s.",
+			       timediff.time2string(timeDiff));
+    var exit = $('<span class="exit"/>');
+    exit.text(exitInfo);
+    exit.appendTo(document.getElementById("output"));
+    document.getElementById("clearbutton").hidden = false;
 }
 
 $(document).ready(function() {

@@ -27,6 +27,7 @@
 //
 //    --help  give a list of all options
 //    --http  host:port to listen on. The default is 127.0.0.1:3998
+//    --html  render program output in compile handler (default true)
 //
 //
 // Security
@@ -51,7 +52,6 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
-	"strings"
 	"text/template"
 
 )
@@ -121,12 +121,7 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// write the output of x as the http response
-	if *htmlOutput {
-		w.Write(out)
-	} else {
-		output.Execute(w, out)
-	}
+	w.Write(out)
 }
 
 /*******************/
@@ -514,12 +509,10 @@ func compile(req *http.Request) (out []byte, err error) {
 // The JavaScript interface uses the 404 status code to identify the error.
 func error_(w http.ResponseWriter, out []byte, err error) {
 	w.WriteHeader(404)
-	str := string(out)
-	if out == nil {
-		str = string(err.Error()[:])
-	}
-	for _, line := range strings.Split(str, "\n") {
-		errput.Execute(w, line)
+	if out != nil {
+		w.Write(out)
+	} else {
+		w.Write([]byte(err.Error()))
 	}
 }
 
@@ -533,14 +526,6 @@ func run(dir string, args ...string) ([]byte, error) {
 	err := cmd.Run()
 	return buf.Bytes(), err
 }
-
-// HTML output template snippet
-const outputText = `<pre>{{printf "%s" . |html}}</pre>`
-var output = template.Must(template.New("output").Parse(outputText))
-
-const errorText = `<a href="/error">{{printf "%s" . |html}}</a></br>`
-var errput = template.Must(template.New("errput").Parse(errorText))
-
 
 // Default program to start out with.
 const hello = `package main

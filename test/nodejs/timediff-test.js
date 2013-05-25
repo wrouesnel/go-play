@@ -16,5 +16,11 @@ if (typeof require === "function" && typeof module !== "undefined") {
 	"shows minutes, seconds and milliseconds only": function () {
             assert.equals(timediff.time2string(120081), "2 minutes, 0.081 secs")
 	},
+	"zero is zero milliseconds only": function () {
+            assert.equals(timediff.time2string(0), "0.000 secs")
+	},
+	"undefined time": function () {
+            assert.equals(timediff.time2string(null), "time unknown")
+	},
     });
 }());
