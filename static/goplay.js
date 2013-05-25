@@ -12,22 +12,29 @@
 /* Various HTML elements we will need information about */
 var aboutEl;      // about button element
 var settingsEl;   // Settings button element
-var ws;           // Websokect object
+
+/* Web socket stuff */
 var startTime;    // Date: Time when last run started;
 var killed;       // boolean: true iff run was killed.
-var useWs = true; // booleand: we should use websocket?
+var ws = null;    // Websocket object
+var useWs = true; // boolean: we should use websocket?
+var wsURL = "ws://localhost:3998/wscompile";
+var wsOpened = false;
 
 function init() {
     // Websocket stuff
     if (ws != null) {
-	ws.close();
-	ws = null;
+	if (ws.url != wsURL) {
+	    ws.close();
+	    wsOpened = false;
+	}
     }
 
     try {
-	ws = new WebSocket("ws://localhost:3998/wscompile");
+	if (!wsOpened)
+	    ws = new WebSocket("ws://localhost:3998/wscompile");
 	ws.onopen = function () {
-	    // FIXME: do something here...
+	    wsOpened = true;
 	};
 	ws.onmessage = function(m) {
             var result = eval('(' + m.data + ')');
@@ -44,7 +51,7 @@ function init() {
             }
 	}
 	ws.onclose = function (e) {
-	    // FIXME: do something?
+	    wsOpened = false;
 	};
     } catch(err) {
 	alert("Websocket failure");
@@ -86,6 +93,10 @@ function haveFileSupport() {
 function handleSettings() {
     var tab_width = document.playsettings.tabSetting.value;
     useWs = document.playsettings.websocket.checked
+    if (!useWs) {
+	    if (ws) ws.close()
+	    wsOpened = false;
+    }
     if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
 	var code = document.getElementById("code");
 	code.style.tabSize = tab_width;
@@ -253,11 +264,13 @@ function onJumpToErrorPos(event) {
 }
 
 function onRun() {
-    if (ws != null && useWs) {
-	onWSRun();
-    } else {
-	onPOSTRun();
+    if (useWs) {
+	if (wsOpened) {
+	    onWSRun();
+	    return;
+	}
     }
+    onPOSTRun();
 }
 
 // Compile and run go program via HTTP POST
@@ -284,7 +297,7 @@ function onPOSTRun() {
 
 // Compile and run go program via websocket.
 function onWSRun() {
-    if (!serverReachable()) { return };
+    if (!serverReachable()) return;
     showCodeTab();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
@@ -302,8 +315,12 @@ function onWSRun() {
     var msg = {Id: "0", Kind: "run", Body: go_code};
     // record start time
     startTime = new Date();
-    ws.send(JSON.stringify(msg));
-    killed = false;
+    try {
+	ws.send(JSON.stringify(msg));
+	killed = false;
+    } catch(err) {
+	alert("Websocket failure");
+    }
 }
 
 // Compile and run go program.
@@ -312,7 +329,7 @@ function onWSKill() {
     showCodeTab();
     var output = document.getElementById('output');
     var msg = {Id: "0", Kind: "kill", Body: ""};
-    ws.send(JSON.stringify(msg));
+    if (wsOpened) ws.send(JSON.stringify(msg));
     killed = true;
 }
 
@@ -384,32 +401,47 @@ function preventDefault(e) {
     }
 }
 
+var lastKeyCode = 0;
 function keyHandler(event) {
     var e = window.event || event;
     if (e.keyCode == 9) { // tab
         insertTabs(1);
         preventDefault(e);
+	lastKeyCode = 0;
         return false;
     } else if (e.keyCode == 13) { // enter
         if (e.shiftKey) { // +shift
 	    onRun();
             preventDefault(e);
+	    lastKeyCode = 0;
             return false;
         } else {
             autoindent(e.target);
         }
-    } else if (e.keyCode == 221) { // }
+    } else if (e.keyCode == 221) {
 	autounindent(e.target);
+    } else if (lastKeyCode == 17) {
+	// Ctrl key entered
+	if (e.keyCode == 76) {
+	    onFormat();
+	    lastKeyCode = 0;
+	    return false;
+	} else if (e.keyCode == 83) {
+	    onSave();
+	    lastKeyCode = 0;
+	    return false;
+	}
     }
+    lastKeyCode = e.keyCode;
     return true;
 }
 
-function autocompile() {
-    if(!document.getElementById("autocompile").checked) {
-        return;
-    }
-    onRun();
-}
+// function autocompile() {
+//     if(!document.getElementById("autocompile").checked) {
+//         return;
+//     }
+//     onRun();
+// }
 
 function setError(error) {
     lineClear();
@@ -483,7 +515,6 @@ function compileUpdate() {
 }
 
 $(document).ready(function() {
-    init();
     playground({
         'outputEl':   '#output',
         'fmtEl':      '#fmt',

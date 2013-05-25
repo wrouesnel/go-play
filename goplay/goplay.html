@@ -36,11 +36,10 @@
     <div id="wrap">
       <textarea itemprop="description" id="code" name="code" autocorrect="off"
 		autocomplete="off" autocapatalize="off" spellcheck="false"
-		onkeyup="autocompile();">{{printf "%s" .Snippet.Body |html}}</textarea>
+		>{{printf "%s" .Snippet.Body |html}}</textarea>
       <div class="hints">
 	<p>
-	(Shift-Enter to compile and run.)&nbsp;&nbsp;&nbsp;&nbsp;
-	<input type="checkbox" id="autocompile" value="checked" /> Compile and run after each keystroke</p>
+	(Shift-Enter to compile and run.)&nbsp;&nbsp;&nbsp;&nbsp;</p>
       </div>
       <div class="output">
 	<div class="buttons">
@@ -64,6 +63,12 @@ return the results.</p>
 
 <p>This code is modification and merger of the <a href="http://play.golang.org">Go playground</a>, the Go <a href="http://godoc.org/code.google.com/p/go.talks/present">present</a> package, and <code>$GOROOT/misc/play</code>.</p>
 
+<p>Input text key assignments
+<ul>
+<li>Shift-Enter &mdash; Compile and Run</li>
+<li>Control-L &mdash; Format Text</li>
+<li>Control-S &mdash; Save</li>
+</ul>
 <p>The code for this package lives
 at <a href="https://code.google.com/p/go-play/">https://code.google.com/p/go-play/</a> and was culled together by Rocky Bernstein.</p>
 

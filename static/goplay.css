@@ -55,9 +55,6 @@ a {
 #about ul {
 	max-width: 480px;
 }
-#about li {
-	margin-bottom: 1em;
-}
 
 /*****************************************************************
   There is a Settings page which influences the overall behavior
