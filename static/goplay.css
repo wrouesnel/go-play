@@ -57,6 +57,13 @@ a {
 }
 
 /*****************************************************************
+  The "load" file-picker button
+******************************************************************/
+#load.style {
+    width: 180px;
+}
+
+/*****************************************************************
   There is a Settings page which influences the overall behavior
 ******************************************************************/
 #playsettings {
@@ -96,9 +103,25 @@ a {
 }
 
 /********************************************************
-  Buster usings a div called "setings". Don't confuse
-  this with the go play settings page.
+  The "save" button
 **********************************************************/
+#saveLoc {
+	width: 100px;
+}
+
+/********************************************************
+  The sections: "settings" and "about"
+**********************************************************/
+#sectionTabs {
+    padding-left: 10px;
+    padding-top: 10px;
+    float: right;
+}
+
+/***********************************************************************
+  Buster uses a div called "setings". Don't confuse this with the
+  goplay settings page called "playsettings"
+  **********************************************************************/
 #settings {
 	float: left;
 	padding: 10px;
@@ -155,10 +178,6 @@ a {
 }
 #controls {
 	float: left;
-	padding: 10px;
-}
-#sectionTabs {
-	float: right;
 	padding: 10px;
 }
 

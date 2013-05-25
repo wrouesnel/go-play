@@ -239,6 +239,11 @@ var xml_req;
 function onFormat() {
     if (!serverReachable()) { return };
     showCodeTab();
+    // Save the input selection currently. This includes
+    // the caret position.
+    var codeEl = document.getElementById("code");
+    var selectionStart = codeEl.selectionStart;
+    var selectionEnd   = codeEl.selectionEnd;
     $.ajax("/fmt", {
         data: {"body": goCodeBody()},
         type: "POST",
@@ -251,6 +256,9 @@ function onFormat() {
     		setError("");
     	    }
 	    onClearOutput();
+	    // Restore input selection range.
+	    codeEl.selectionStart = selectionStart;
+	    codeEl.selectionEnd   = selectionEnd;
         }
     });
 }
@@ -266,15 +274,15 @@ function onJumpToErrorPos(event) {
 function onRun() {
     if (useWs) {
 	if (wsOpened) {
-	    onWSRun();
+	    runViaWS();
 	    return;
 	}
     }
-    onPOSTRun();
+    runViaPOST();
 }
 
 // Compile and run go program via HTTP POST
-function onPOSTRun() {
+function runViaPOST() {
     if (!serverReachable()) { return };
     showCodeTab();
     var clear = document.getElementById('clearbutton');
@@ -288,7 +296,7 @@ function onPOSTRun() {
     var xh_req = new XMLHttpRequest();
 
     xml_req = xh_req;
-    xh_req.onreadystatechange = compileUpdate;
+    xh_req.onreadystatechange = runUpdate;
     xh_req.open("POST", "/compile", true);
     xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
     xh_req.send(go_code);
@@ -296,7 +304,7 @@ function onPOSTRun() {
 }
 
 // Compile and run go program via websocket.
-function onWSRun() {
+function runViaWS() {
     if (!serverReachable()) return;
     showCodeTab();
     var clear = document.getElementById('clearbutton');
@@ -402,6 +410,8 @@ function preventDefault(e) {
 }
 
 var lastKeyCode = 0;
+
+// Our custom key event handler
 function keyHandler(event) {
     var e = window.event || event;
     if (e.keyCode == 9) { // tab
@@ -409,8 +419,10 @@ function keyHandler(event) {
         preventDefault(e);
 	lastKeyCode = 0;
         return false;
-    } else if (e.keyCode == 13) { // enter
-        if (e.shiftKey) { // +shift
+    } else if (e.keyCode == 13) {
+	// Enter Key
+        if (e.shiftKey) {
+	    // Enter shift
 	    onRun();
             preventDefault(e);
 	    lastKeyCode = 0;
@@ -423,10 +435,12 @@ function keyHandler(event) {
     } else if (lastKeyCode == 17) {
 	// Ctrl key entered
 	if (e.keyCode == 76) {
+	    // Ctrl-L
 	    onFormat();
 	    lastKeyCode = 0;
 	    return false;
 	} else if (e.keyCode == 83) {
+	    // Ctrl-S
 	    onSave();
 	    lastKeyCode = 0;
 	    return false;
@@ -498,11 +512,13 @@ function lineClear() {
     $(".lineerror").removeClass("lineerror");
 }
 
-function compileUpdate() {
+// Callback when run via POST is issued
+function runUpdate() {
     var xh_req = xml_req;
     if(!xh_req || xh_req.readyState != 4) {
         return;
     }
+
     if(xh_req.status == 200) {
         document.getElementById("output").innerHTML = xh_req.responseText;
         document.getElementById("errors").innerHTML = "";
