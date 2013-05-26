@@ -105,21 +105,24 @@ var goplay = (function (global) {
 	return window.File && window.FileReader && window.FileList;
     }
 
-    // Handle input from the settings tab.
-    function onSettingsUpdate() {
-	var tab_width = document.playsettings.tabSetting.value;
+    function onTabSetting() {
+	var tabWidth = +document.playsettings.tabSetting.value;
+	if (isFinite(tabWidth) && tabWidth >= 2 && tabWidth <= 10) {
+	    var code = document.getElementById("code");
+	    code.style.tabSize = tabWidth;
+	} else {
+	    alert("Tab width should be a number between 2 and 10 inclusive: got " + tabWidth);
+	}
+
+	return false; // prevent further bubbling of event
+    }
+
+    function onWSButton() {
 	useWs = document.playsettings.websocket.checked
 	if (!useWs) {
 	    if (ws) ws.close()
 	    wsOpened = false;
 	}
-	if (isFinite(tab_width) && tab_width >= 2 && tab_width <= 10) {
-	    var code = document.getElementById("code");
-	    code.style.tabSize = tab_width;
-	} else {
-	    alert("Tab width should be a number between 2 and 10 inclusive: got " + tab_width);
-	}
-
 	return false; // prevent further bubbling of event
     }
 
@@ -305,7 +308,7 @@ var goplay = (function (global) {
 
     function onRun() {
 
-	buildOpts = ''; // document.playsettings.buildOpts.value;
+	buildOpts = document.playsettings.buildOpts.value;
 
 	if (!serverReachable()) return;
 	showCodeTab();
@@ -583,7 +586,8 @@ var goplay = (function (global) {
 	onRun            : onRun,
 	onSave           : onSave,
 	onSettings       : onSettings,
-	onSettingsUpdate : onSettingsUpdate,
+	onTabSetting     : onTabSetting,
+	onWSbutton       : onWSButton,
 	onWSKill         : onWSKill,
 	positionOnError  : positionOnError,
 	setGoCodeBody    : setGoCodeBody,

@@ -32,6 +32,12 @@ $(document).ready(function() {
     $('#fmt').click(function() {
         goplay.onFormat();
     })
+    $('#tabSetting').focusout(function() {
+        goplay.onTabSetting();
+    })
+    $('#websocket').click(function() {
+        goplay.onWSButton();
+    })
     $("#errors").click(function(event){
 	goplay.onJumpToErrorPos(event);
     });
