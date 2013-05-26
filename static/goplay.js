@@ -22,6 +22,7 @@ var goplay = (function (global) {
     var aboutButtonEl;
     var settingsEl;
     var settingsButtonEl;
+    var codeEl;
 
     var errorRegex = /(?:compile[0-9]+|prog|main)\.go:([0-9]+)(?::([0-9]+))?/g;
 
@@ -124,13 +125,19 @@ var goplay = (function (global) {
 
     // Return a string containing the Go code.
     function goCodeBody() {
-	return document.getElementById("code").value;
+	if (null == codeEl) {
+	    codeEl = document.getElementById("code");
+	}
+	return codeEl.value;
     }
 
     // Return a string containing the Go code.
     function setGoCodeBody(text) {
 	lineClear(); // Nuke any previous error marks
-	return document.getElementById("code").value = text;
+	if (null == codeEl) {
+	    codeEl = document.getElementById("code");
+	}
+	return codeEl.value = text;
     }
 
     function runExited(exitMsg) {
@@ -254,7 +261,7 @@ var goplay = (function (global) {
 	onAbout(false);
 	document.getElementById("saveLoc").value = file.name;
 	onClearOutput();
-	document.getElementById("errors").innerHTML = "";
+	$(document.getElementById("errors")).empty();
     }
 
     var xml_req;
@@ -264,7 +271,9 @@ var goplay = (function (global) {
 	showCodeTab();
 	// Save the input selection currently. This includes
 	// the caret position.
-	var codeEl = document.getElementById("code");
+	if (null == codeEl) {
+	    codeEl = document.getElementById("code");
+	}
 	var selectionStart = codeEl.selectionStart;
 	var selectionEnd   = codeEl.selectionEnd;
 	$.ajax("/fmt", {
@@ -389,7 +398,7 @@ var goplay = (function (global) {
     function onClearOutput() {
 	document.getElementById("clearbutton").hidden = true;
 	var output = document.getElementById("output");
-	output.innerHTML = "";
+	$(output).empty();
 	output.style.display = "inline-block";
 	document.getElementById("runbutton").style.display = "inline-block";
     }
@@ -522,7 +531,9 @@ var goplay = (function (global) {
 	    }
 	    // Position cursor on first error
 	    var errPos = helper.line2Offset(goCodeBody(), +r[1]) + columnOffset;
-	    var codeEl = document.getElementById("code");
+	    if (null == codeEl) {
+		codeEl = document.getElementById("code");
+	    }
 	    setTimeout(function() {
 		codeEl.focus();
 		codeEl.setSelectionRange(errPos-1, errPos);
