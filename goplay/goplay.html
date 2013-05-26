@@ -13,13 +13,14 @@
     <script src={{printf "\"%s/jquery.min.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/jquery-linedtextarea.js\"" .ResourceDir}}></script>
     <script src={{printf "\"%s/playground.js\"" .ResourceDir}}></script>
-    <script src={{printf "\"%s/helper.js\""     .ResourceDir}}></script>
     <script src={{printf "\"%s/fmt.js\""        .ResourceDir}}></script>
+    <script src={{printf "\"%s/helper.js\""     .ResourceDir}}></script>
     <script src={{printf "\"%s/linkerror.js\""  .ResourceDir}}></script>
     <script src={{printf "\"%s/timediff.js\""   .ResourceDir}}></script>
     <script src={{printf "\"%s/goplay.js\""     .ResourceDir}}></script>
+    <script src={{printf "\"%s/main.js\""       .ResourceDir}}></script>
   </head>
-  <body itemscope itemtype="http://schema.org/CreativeWork" onLoad="init()">
+  <body itemscope itemtype="http://schema.org/CreativeWork" onLoad="goplay.init()">
     <div id="banner">
       <div id="head" itemprop="name">Go Play</div>
       <div id="controls">

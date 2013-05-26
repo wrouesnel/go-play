@@ -1,6 +1,6 @@
 # Whatever it is you want to do, it should be handled by the
 # by the main (parent) Makefile. So reissue make from there.
-.PHONY: all
+.PHONY: all node-checks
 
 #: Default runs node-checks
 all: node-checks

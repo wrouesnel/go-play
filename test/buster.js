@@ -6,7 +6,11 @@ config["nodejs tests"] = {
     rootPath: "../",
     environment: "node", // or "browser"
     sources: [
+        "static/goplay.js",
         "static/helper.js",
+        "static/linkerror.js",
+        "static/timediff.js",
+        "static/fmt.js",
     ],
     tests: [
         "test/nodejs/*-test.js"
