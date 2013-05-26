@@ -20,7 +20,7 @@
     <script src={{printf "\"%s/goplay.js\""     .ResourceDir}}></script>
     <script src={{printf "\"%s/main.js\""       .ResourceDir}}></script>
   </head>
-  <body itemscope itemtype="http://schema.org/CreativeWork" onLoad="goplay.init()">
+  <body itemscope itemtype="http://schema.org/CreativeWork">
     <div id="banner">
       <div id="head" itemprop="name">Go Play</div>
       <div id="controls">
@@ -78,11 +78,11 @@ at <a href="https://code.google.com/p/go-play/">https://code.google.com/p/go-pla
       <!--- h1 seems to interfere with buster, so use h2. -->
       <h2>Settings</h2>
 
-      <form name="playsettings" onSubmit="return handleSettings()">
+      <form name="playsettings">
 	<input type="checkbox" id="websocket"
 	       value="true" checked/>Use Websocket</br>
 	<p><b>tab size:</b> <input name="tabSetting" type="text" value="4"></p>
-	<input name="Submit"  type="submit" value="Update"/>
+	<input name="Submit" type="submit" value="Update" id="settingsUpdate"/>
       </form>
     </div>
   </body>

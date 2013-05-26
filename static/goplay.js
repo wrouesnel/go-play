@@ -106,7 +106,7 @@ var goplay = (function (global) {
     }
 
     // Handle input from the settings tab.
-    function handleSettings() {
+    function onSettingsUpdate() {
 	var tab_width = document.playsettings.tabSetting.value;
 	useWs = document.playsettings.websocket.checked
 	if (!useWs) {
@@ -305,6 +305,8 @@ var goplay = (function (global) {
 
     function onRun() {
 
+	buildOpts = ''; // document.playsettings.buildOpts.value;
+
 	if (!serverReachable()) return;
 	showCodeTab();
 	var clear = document.getElementById('clearbutton');
@@ -325,18 +327,18 @@ var goplay = (function (global) {
 
 	if (useWs) {
 	    if (wsOpened) {
-		runViaWS(goCode);
+		runViaWS(goCode, buildOpts);
 		return;
 	    }
 	}
-	runViaPOST(goCode);
+	runViaPOST(goCode, buildOpts);
     }
 
     // Compile and run go program via HTTP POST
     function runViaPOST(goCode) {
 
 	$.ajax("/compile", {
-	    data: {Body: goCode},
+	    data: {Body: goCode, BuildOpts: buildOpts},
 	    type: "POST",
 	    dataType: "json",
 	    success: function(data) {
@@ -373,8 +375,8 @@ var goplay = (function (global) {
     }
 
     // Compile and run go program via websocket.
-    function runViaWS(goCode) {
-	var msg = {Id: "0", Kind: "run", Body: goCode};
+    function runViaWS(goCode, buildOpts) {
+	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts};
 	var kill = document.getElementById('killbutton');
 	kill.hidden = false;
 	try {
@@ -408,8 +410,8 @@ var goplay = (function (global) {
     function insertTabs(n) {
 	var start = code.selectionStart;
 	// set revised content
-	code.value = helper.insertTabsInText(code.value, start, code.selectionEnd,
-					     n);
+	code.value = helper.insertTabsInText(code.value, start,
+					     code.selectionEnd, n);
 	// reset caret position after inserted tabs
 	code.selectionStart = start+n;
 	code.selectionEnd   = start+n;
@@ -581,6 +583,7 @@ var goplay = (function (global) {
 	onRun            : onRun,
 	onSave           : onSave,
 	onSettings       : onSettings,
+	onSettingsUpdate : onSettingsUpdate,
 	onWSKill         : onWSKill,
 	positionOnError  : positionOnError,
 	setGoCodeBody    : setGoCodeBody,

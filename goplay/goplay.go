@@ -133,7 +133,8 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	var stderr, stdout []byte
 	var err error
-	stdout, stderr, err = compile(req.FormValue("Body"))
+	stdout, stderr, err =
+		compile(req.FormValue("Body"), req.FormValue("BuildOpts"));
 	resp.Stdout = string(stdout)
 	resp.Stderr = string(stderr)
 	if err != nil {
@@ -145,7 +146,7 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func compile(body string) (stdout []byte, stderr []byte, err error) {
+func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err error) {
 	// x is the base name for .go, .6, executable files
 	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
 	src := x + ".go"
@@ -171,7 +172,13 @@ func compile(body string) (stdout []byte, stderr []byte, err error) {
 
 	// build x.go, creating x
 	dir, file := filepath.Split(src)
-	stdout, stderr, err = run(dir, "go", "build", "-o", bin, file)
+	if len(buildOpts) == 0 {
+		stdout, stderr, err =
+			run(dir, "go", "build", "-o", bin, file)
+	} else {
+		stdout, stderr, err =
+			run(dir, "go", "build", buildOpts, "-o", bin, file)
+	}
 	defer os.Remove(bin)
 	if err != nil {
 		/* fmt.Printf("+++ stdout is %s\n", stdout)
@@ -213,9 +220,10 @@ const msgLimit = 1000 // max number of messages to send per session
 // It is used for both sending output messages and receiving commands, as
 // distinguished by the Kind field.
 type Message struct {
-	Id   string // client-provided unique id for the process
-	Kind string // in: "run", "kill" out: "stdout", "stderr", "end"
-	Body string
+	Id        string // client-provided unique id for the process
+	Kind      string // in: "run", "kill" out: "stdout", "stderr", "end"
+	BuildOpts string // flags to pass to "go build"
+	Body      string
 }
 
 func init() {
@@ -279,7 +287,7 @@ func WSCompileRunHandler(c *websocket.Conn) {
             switch m.Kind {
             case "run":
                 proc[m.Id].Kill()
-                proc[m.Id] = StartProcess(m.Id, m.Body, out)
+                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, out)
             case "kill":
                 proc[m.Id].Kill()
             }
@@ -305,13 +313,13 @@ type Process struct {
 
 // StartProcess builds and runs the given program, sending its output
 // and end event as Messages on the provided channel.
-func StartProcess(id, body string, out chan<- *Message) *Process {
+func StartProcess(id, body string, buildOpts string, out chan<- *Message) *Process {
     p := &Process{
         id:   id,
         out:  out,
         done: make(chan struct{}),
     }
-    if err := p.start(body); err != nil {
+    if err := p.start(body, buildOpts); err != nil {
         p.end(err)
         return nil
     }
@@ -330,7 +338,7 @@ func (p *Process) Kill() {
 
 // start builds and starts the given program, sends its output to p.out,
 // and stores the running *exec.Cmd in the run field.
-func (p *Process) start(body string) error {
+func (p *Process) start(body string, buildOpts string) error {
 	// We "go build" and then exec the binary so that the
 	// resultant *exec.Cmd is a handle to the user's program
 	// (rather than the go tool process).
@@ -353,7 +361,13 @@ func (p *Process) start(body string) error {
     // build x.go, creating x
     defer os.Remove(bin)
     dir, file := filepath.Split(src)
-	cmd := p.cmd(dir, "go", "build", "-o", bin, file)
+    var cmd  *exec.Cmd
+	if len(buildOpts) == 0 {
+		cmd = p.cmd(dir, "go", "build", "-o", bin, file)
+	} else {
+		cmd = p.cmd(dir, "go", "build", buildOpts, "-o", bin, file)
+	}
+	// fmt.Println("++cmd", cmd);
 	cmd.Stdout = cmd.Stderr // send compiler output to stderr
     if err := cmd.Run(); err != nil {
         return err

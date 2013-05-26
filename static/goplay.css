@@ -224,7 +224,7 @@ div.output {
   top: 50%;
   right: 40px;
   bottom: 40px;
-  min-height: 26px;
+  min-height: 35px;
   background: #202020;
   padding: 5px 10px;
   z-index: 2;
@@ -262,14 +262,14 @@ div.output {
   top: auto;
   right: 5px;
   bottom: 5px;
+  overflow: hidden;
 }
 
 div.buttons {
   position: absolute;
-  float: top;
+  float: none;
   top: auto;
-  right: 5px;
-  bottom: 5px;
+  right: 20px;
 }
 
 div.errors {
@@ -281,11 +281,13 @@ div.errors {
   background: #202020;
   padding: 5px 10px;
   z-index: 2;
+  overflow: hidden;
 
   border-radius: 10px;
   -o-border-radius: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
+
 
 }
 div.errors pre {
@@ -311,6 +313,6 @@ div.errors .buttons {
   position: absolute;
   float: none;
   top: auto;
-  right: 5px;
+  right: 20px;
   bottom: 5px;
 }

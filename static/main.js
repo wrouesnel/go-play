@@ -1,6 +1,7 @@
 // Top-level Javascript. Pulls in rest
 "use strict"
 $(document).ready(function() {
+    goplay.init();
     playground({
         'outputEl':   '#output',
         'fmtEl':      '#fmt',
@@ -34,6 +35,7 @@ $(document).ready(function() {
     $("#errors").click(function(event){
 	goplay.onJumpToErrorPos(event);
     });
+    $('#settingsUpdate').click(function() { goplay.onSettingsUpdate(); })
     if (goplay.haveFileSupport()) {
         document.getElementById('load').addEventListener('change', goplay.onFileLoad,
 							 false);
