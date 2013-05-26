@@ -272,58 +272,79 @@ function onJumpToErrorPos(event) {
 }
 
 function onRun() {
-    if (useWs) {
-	if (wsOpened) {
-	    runViaWS();
-	    return;
-	}
-    }
-    runViaPOST();
-}
 
-// Compile and run go program via HTTP POST
-function runViaPOST() {
-    if (!serverReachable()) { return };
-    showCodeTab();
-    var clear = document.getElementById('clearbutton');
-    clear.hidden = false;
-    var kill = document.getElementById('killbutton');
-    kill.hidden = true;
-    var output = document.getElementById('output');
-    output.style.display = "block";
-
-    var go_code =  goCodeBody();
-    var xh_req = new XMLHttpRequest();
-
-    xml_req = xh_req;
-    xh_req.onreadystatechange = runUpdate;
-    xh_req.open("POST", "/compile", true);
-    xh_req.setRequestHeader("Content-Type", "text/plain; charset=utf-8");
-    startTime = new Date();
-    xh_req.send(go_code);
-    killed = false;
-}
-
-// Compile and run go program via websocket.
-function runViaWS() {
     if (!serverReachable()) return;
     showCodeTab();
     var clear = document.getElementById('clearbutton');
     clear.hidden = false;
-    var kill = document.getElementById('killbutton');
-    kill.hidden = false;
     var run = document.getElementById('runbutton');
     run.hidden = true;
+
+    var errors = document.getElementById("errors").innerHTML = "";
+    errors.innerHTML = "";
     var output = document.getElementById('output');
     output.innerHTML = "";
     output.style.display = "block";
-    var errors = document.getElementById("errors").innerHTML = "";
-    errors.innerHTML = "";
 
-    var go_code =  goCodeBody();
-    var msg = {Id: "0", Kind: "run", Body: go_code};
-    // record start time
+    var goCode =  goCodeBody();
+
     startTime = new Date();
+    killed = false;
+
+    if (useWs) {
+	if (wsOpened) {
+	    runViaWS(goCode);
+	    return;
+	}
+    }
+    runViaPOST(goCode);
+}
+
+// Compile and run go program via HTTP POST
+function runViaPOST(goCode) {
+
+    $.ajax("/compile", {
+        data: {Body: goCode},
+        type: "POST",
+        dataType: "json",
+        success: function(data) {
+	    var timeDiff = new Date() - startTime;
+	    var output = $('<pre/>');
+	    lineClear();
+	    output.text(data.Stdout);
+	    output.appendTo(document.getElementById("output"));
+	    var exitInfo = fmt.sprintf("\nProgram exited %s",
+				       timediff.time2string(timeDiff));
+	    if (data.Error) {
+		exitInfo += ' - ' + data.Error;
+	    } else {
+		exitInfo += '.';
+	    }
+
+	    var exit = $('<span class="exit"/>');
+	    exit.text(exitInfo);
+	    exit.appendTo(document.getElementById("output"));
+
+	    var errorText = data.Stderr;
+	    lineHighlight(errorText);
+	    var linkedErrorText = fmt.sprintf("<pre>%s</pre>",
+					      linkerror.linkErrorOutput(errorText));
+	    document.getElementById("errors").innerHTML=linkedErrorText;
+
+	    document.getElementById("clearbutton").hidden = false;
+	    var run = document.getElementById('runbutton');
+	    run.hidden = false;
+	    var kill = document.getElementById('killbutton');
+	    kill.hidden = true;
+        }
+    });
+}
+
+// Compile and run go program via websocket.
+function runViaWS(goCode) {
+    var msg = {Id: "0", Kind: "run", Body: goCode};
+    var kill = document.getElementById('killbutton');
+    kill.hidden = false;
     try {
 	ws.send(JSON.stringify(msg));
 	killed = false;
@@ -511,37 +532,6 @@ function lineHighlight(errors) {
 
 function lineClear() {
     $(".lineerror").removeClass("lineerror");
-}
-
-// Callback when run via POST is issued
-function runUpdate() {
-    var xh_req = xml_req;
-    if(!xh_req || xh_req.readyState != 4) {
-        return;
-    }
-
-    var timeDiff = new Date() - startTime;
-    if(xh_req.status == 200) {
-	onClearOutput();
-	var output = $('<pre/>');
-	output.text(xh_req.responseText);
-	output.appendTo(document.getElementById("output"));
-        document.getElementById("errors").innerHTML = "";
-	lineClear();
-    } else {
-	var errorText = xh_req.responseText;
-	lineHighlight(errorText)
-	var linkedErrorText = fmt.sprintf("<pre>%s</pre>",
-					  linkerror.linkErrorOutput(errorText));
-	document.getElementById("errors").innerHTML=linkedErrorText;
-	onClearOutput();
-    }
-    var exitInfo = fmt.sprintf("\nProgram exited %s.",
-			       timediff.time2string(timeDiff));
-    var exit = $('<span class="exit"/>');
-    exit.text(exitInfo);
-    exit.appendTo(document.getElementById("output"));
-    document.getElementById("clearbutton").hidden = false;
 }
 
 $(document).ready(function() {

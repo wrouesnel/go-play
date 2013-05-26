@@ -57,6 +57,8 @@ import (
 )
 
 /************** FIXME: put in a separate file ****************/
+
+// Format handler
 import (
 	"encoding/json"
 	"go/ast"
@@ -109,74 +111,97 @@ func gofmt(body string) (string, error) {
 	}
 	return buf.String(), nil
 }
-/*******************/
+
+/*********************************************************************************/
+// Ajax POST version of compile+run
+
+type compileResponse struct {
+	Body  string
+	Stdout string
+	Stderr string
+	Error  string
+}
 
 // CompileHandler is an HTTP handler that reads Go source code from req,
 // runs the program (returning any errors),
 // and sends the program's output as the HTTP response to w.
 func CompileHandler(w http.ResponseWriter, req *http.Request) {
-	out, err := compile(req)
-	if err != nil {
-		error_(w, out, err)
-		return
-	}
-
-	w.Write(out)
-}
-
-/*******************/
-
-const DefaultSaveName = "save"
-const GoPathSuffix    = ".go"
-
-// SaveHandler writes a Go program to file.
-//
-// We have to do this in Go since HTML5 Doesn't grok file paths.
-//
-// In order to be able to distinguish relative versus absolute paths,
-// we add an X in the URL. For example /save/X/tmp/save.go versus
-// /save/Xtmp/save.go. The latter refers to ./tmp/save.go.
-//
-// This routine must be called via POST.
-func SaveHandler(w http.ResponseWriter, req *http.Request) {
-	filename := DefaultSaveName
-	// +3 for enclosing "/X", e.g. "/save/X" not "save"
-	SaveLen := len(DefaultSaveName) + 3
-	if len(req.URL.Path) > SaveLen {
-		filename = req.URL.Path[SaveLen:];
-		if filename[0] != '/' {
-			filename = filepath.Join(tmpdir, filename);
-		}
-	}
+	resp := new(compileResponse)
 	if req.Method != "POST" {
 		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
 		return
 	}
-
-	/** fmt.Printf("Req %s\n", req) **/
-	body := new(bytes.Buffer)
-	_, err := body.ReadFrom(req.Body)
+	var stderr, stdout []byte
+	var err error
+	stdout, stderr, err = compile(req.FormValue("Body"))
+	resp.Stdout = string(stdout)
+	resp.Stderr = string(stderr)
 	if err != nil {
-		http.Error(w, "Server Error in SaveHandler reading Body text",
-			http.StatusInternalServerError)
-		return
+		resp.Error  = string(err.Error())
+		fmt.Printf("error is %s\n", resp.Error)
 	}
-	req.Body.Close()
-
-	if filename[len(filename)-len(GoPathSuffix):] != GoPathSuffix {
-		filename += GoPathSuffix
-	}
-	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
-	if err != nil {
-		fmt.Printf("Save Error: %s\n", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	fmt.Printf("File: %s saved\n", filename)
-	w.Write([]byte(filename))
+	/* fmt.Printf("stdout is %s\n", resp.Stdout)
+	fmt.Printf("stderr is %s\n", resp.Stderr) */
+	json.NewEncoder(w).Encode(resp)
 }
 
-/*******************/
+func compile(body string) (stdout []byte, stderr []byte, err error) {
+	// x is the base name for .go, .6, executable files
+	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
+	src := x + ".go"
+	bin := x
+	if runtime.GOOS == "windows" {
+		bin += ".exe"
+	}
+
+	// rewrite filename in error output
+	defer func() {
+		if err != nil {
+			// drop messages from the go tool like '# _/compile0'
+			stderr = commentRe.ReplaceAll(stderr, nil)
+		}
+		stdout = bytes.Replace(stdout, []byte(src+":"), []byte("main.go:"), -1)
+	}()
+
+	// write body to x.go
+	defer os.Remove(src)
+	if err = ioutil.WriteFile(src, []byte(body), 0666); err != nil {
+		return
+	}
+
+	// build x.go, creating x
+	dir, file := filepath.Split(src)
+	stdout, stderr, err = run(dir, "go", "build", "-o", bin, file)
+	defer os.Remove(bin)
+	if err != nil {
+		/* fmt.Printf("+++ stdout is %s\n", stdout)
+		fmt.Printf("+++ stderr is %s\n", stderr) */
+		if (len(stderr) == 0 && len(stdout) != 0) {
+			stderr = stdout
+			stdout = []byte("")
+		}
+		return
+	}
+
+	// run x
+	return run("", bin)
+}
+
+// run executes the specified command and returns its output and an error.
+func run(dir string, args ...string) ([]byte, []byte, error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = dir
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	return stdout.Bytes(), stderr.Bytes(), err
+}
+
+/*********************************************************************************/
+// Now compile+run via websockets
+
 
 // Environ, if non-nil, is used to provide an environment to go command and
 // user binary invocations.
@@ -212,7 +237,7 @@ func init() {
 	}()
 }
 
-// WSComileRunHandler handles the websocket connection for a given compile/run action.
+// WSCompileRunHandler handles the websocket connection for a given compile/run action.
 // It handles transcoding Messages to and from JSON format, and handles starting
 // and killing processes.
 func WSCompileRunHandler(c *websocket.Conn) {
@@ -386,6 +411,58 @@ func (w *messageWriter) Write(b []byte) (n int, err error) {
     return len(b), nil
 }
 
+/*********************************************************************************/
+
+const DefaultSaveName = "save"
+const GoPathSuffix    = ".go"
+
+// SaveHandler writes a Go program to file.
+//
+// We have to do this in Go since HTML5 Doesn't grok file paths.
+//
+// In order to be able to distinguish relative versus absolute paths,
+// we add an X in the URL. For example /save/X/tmp/save.go versus
+// /save/Xtmp/save.go. The latter refers to ./tmp/save.go.
+//
+// This routine must be called via POST.
+func SaveHandler(w http.ResponseWriter, req *http.Request) {
+	filename := DefaultSaveName
+	// +3 for enclosing "/X", e.g. "/save/X" not "save"
+	SaveLen := len(DefaultSaveName) + 3
+	if len(req.URL.Path) > SaveLen {
+		filename = req.URL.Path[SaveLen:];
+		if filename[0] != '/' {
+			filename = filepath.Join(tmpdir, filename);
+		}
+	}
+	if req.Method != "POST" {
+		http.Error(w, "Forbidden, need POST", http.StatusForbidden)
+		return
+	}
+
+	/** fmt.Printf("Req %s\n", req) **/
+	body := new(bytes.Buffer)
+	_, err := body.ReadFrom(req.Body)
+	if err != nil {
+		http.Error(w, "Server Error in SaveHandler reading Body text",
+			http.StatusInternalServerError)
+		return
+	}
+	req.Body.Close()
+
+	if filename[len(filename)-len(GoPathSuffix):] != GoPathSuffix {
+		filename += GoPathSuffix
+	}
+	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
+	if err != nil {
+		fmt.Printf("Save Error: %s\n", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Printf("File: %s saved\n", filename)
+	w.Write([]byte(filename))
+}
+
 /*******************/
 
 func ShareHandler(w http.ResponseWriter, req *http.Request) {
@@ -436,6 +513,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(*httpListen, nil))
 }
 
+
+// Default program to start out with.
+const hello = `package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("hello, world")
+}
+`
 var editTemplate = template.Must(template.ParseFiles("goplay.html"))
 
 type Snippet struct {
@@ -464,75 +551,3 @@ func edit(w http.ResponseWriter, req *http.Request) {
 var (
 	commentRe = regexp.MustCompile(`(?m)^#.*\n`)
 )
-
-func compile(req *http.Request) (out []byte, err error) {
-	// x is the base name for .go, .6, executable files
-	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
-	src := x + ".go"
-	bin := x
-	if runtime.GOOS == "windows" {
-		bin += ".exe"
-	}
-
-	// rewrite filename in error output
-	defer func() {
-		if err != nil {
-			// drop messages from the go tool like '# _/compile0'
-			out = commentRe.ReplaceAll(out, nil)
-		}
-		out = bytes.Replace(out, []byte(src+":"), []byte("main.go:"), -1)
-	}()
-
-	// write body to x.go
-	body := new(bytes.Buffer)
-	if _, err = body.ReadFrom(req.Body); err != nil {
-		return
-	}
-	defer os.Remove(src)
-	if err = ioutil.WriteFile(src, body.Bytes(), 0666); err != nil {
-		return
-	}
-
-	// build x.go, creating x
-	dir, file := filepath.Split(src)
-	out, err = run(dir, "go", "build", "-o", bin, file)
-	defer os.Remove(bin)
-	if err != nil {
-		return
-	}
-
-	// run x
-	return run("", bin)
-}
-
-// error writes compile, link, or runtime errors to the HTTP connection.
-// The JavaScript interface uses the 404 status code to identify the error.
-func error_(w http.ResponseWriter, out []byte, err error) {
-	w.WriteHeader(404)
-	if out != nil {
-		w.Write(out)
-	} else {
-		w.Write([]byte(err.Error()))
-	}
-}
-
-// run executes the specified command and returns its output and an error.
-func run(dir string, args ...string) ([]byte, error) {
-	var buf bytes.Buffer
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Dir = dir
-	cmd.Stdout = &buf
-	cmd.Stderr = cmd.Stdout
-	err := cmd.Run()
-	return buf.Bytes(), err
-}
-
-// Default program to start out with.
-const hello = `package main
-
-import "fmt"
-
-func main() {
-	fmt.Println("hello, world")
-}
-`
