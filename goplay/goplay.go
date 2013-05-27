@@ -176,8 +176,11 @@ func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err e
 		stdout, stderr, err =
 			run(dir, "go", "build", "-o", bin, file)
 	} else {
+		fmt.Println("running with Buildopts");
 		stdout, stderr, err =
 			run(dir, "go", "build", buildOpts, "-o", bin, file)
+		fmt.Println("stderr: ", string(stderr))
+		fmt.Println("stdout: ", string(stdout))
 	}
 	defer os.Remove(bin)
 	if err != nil {
@@ -191,7 +194,11 @@ func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err e
 	}
 
 	// run x
-	return run("", bin)
+	var runStdout, runStderr [] byte;
+	runStdout, runStderr, err = run("", bin)
+	stdout = append(stdout, runStdout...)
+	stderr = append(stderr, runStderr...)
+	return
 }
 
 // run executes the specified command and returns its output and an error.
