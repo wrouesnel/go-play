@@ -52,6 +52,7 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
+	"strings"
 	"text/template"
 
 )
@@ -172,16 +173,12 @@ func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err e
 
 	// build x.go, creating x
 	dir, file := filepath.Split(src)
-	if len(buildOpts) == 0 {
-		stdout, stderr, err =
-			run(dir, "go", "build", "-o", bin, file)
-	} else {
-		fmt.Println("running with Buildopts");
-		stdout, stderr, err =
-			run(dir, "go", "build", buildOpts, "-o", bin, file)
-		fmt.Println("stderr: ", string(stderr))
-		fmt.Println("stdout: ", string(stdout))
+	buildArgs := []string{"go", "build", "-o", bin}
+	if len(buildOpts) != 0 {
+		buildArgs = append(buildArgs, strings.Split(buildOpts, " ")...)
 	}
+	buildArgs = append(buildArgs, file)
+	stdout, stderr, err = run(dir, buildArgs)
 	defer os.Remove(bin)
 	if err != nil {
 		/* fmt.Printf("+++ stdout is %s\n", stdout)
@@ -194,15 +191,16 @@ func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err e
 	}
 
 	// run x
-	var runStdout, runStderr [] byte;
-	runStdout, runStderr, err = run("", bin)
+	var runStdout, runStderr [] byte
+	runArgs := []string{bin}
+	runStdout, runStderr, err = run("", runArgs)
 	stdout = append(stdout, runStdout...)
 	stderr = append(stderr, runStderr...)
 	return
 }
 
 // run executes the specified command and returns its output and an error.
-func run(dir string, args ...string) ([]byte, []byte, error) {
+func run(dir string, args []string) ([]byte, []byte, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd := exec.Command(args[0], args[1:]...)
