@@ -309,6 +309,7 @@ var goplay = (function (global) {
     function onRun() {
 
 	buildOpts = document.playsettings.buildOpts.value;
+	runOpts   = document.playsettings.runOpts.value;
 
 	if (!serverReachable()) return;
 	showCodeTab();
@@ -330,7 +331,7 @@ var goplay = (function (global) {
 
 	if (useWs) {
 	    if (wsOpened) {
-		runViaWS(goCode, buildOpts);
+		runViaWS(goCode, buildOpts, runOpts);
 		return;
 	    }
 	}
@@ -379,7 +380,7 @@ var goplay = (function (global) {
 
     // Compile and run go program via websocket.
     function runViaWS(goCode, buildOpts) {
-	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts};
+	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts};
 	var kill = document.getElementById('killbutton');
 	kill.hidden = false;
 	try {

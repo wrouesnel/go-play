@@ -135,7 +135,8 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	var stderr, stdout []byte
 	var err error
 	stdout, stderr, err =
-		compile(req.FormValue("Body"), req.FormValue("BuildOpts"));
+		compile(req.FormValue("Body"), req.FormValue("BuildOpts"),
+		req.FormValue("RunOpts"));
 	resp.Stdout = string(stdout)
 	resp.Stderr = string(stderr)
 	if err != nil {
@@ -147,7 +148,7 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func compile(body string, buildOpts string) (stdout []byte, stderr []byte, err error) {
+func compile(body string, buildOpts string, runOpts string) (stdout []byte, stderr []byte, err error) {
 	// x is the base name for .go, .6, executable files
 	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
 	src := x + ".go"
@@ -228,6 +229,7 @@ type Message struct {
 	Id        string // client-provided unique id for the process
 	Kind      string // in: "run", "kill" out: "stdout", "stderr", "end"
 	BuildOpts string // flags to pass to "go build"
+	RunOpts   string // flags to pass to "invocation"
 	Body      string
 }
 
@@ -292,7 +294,7 @@ func WSCompileRunHandler(c *websocket.Conn) {
             switch m.Kind {
             case "run":
                 proc[m.Id].Kill()
-                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, out)
+                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, out)
             case "kill":
                 proc[m.Id].Kill()
             }
@@ -318,13 +320,13 @@ type Process struct {
 
 // StartProcess builds and runs the given program, sending its output
 // and end event as Messages on the provided channel.
-func StartProcess(id, body string, buildOpts string, out chan<- *Message) *Process {
+func StartProcess(id, body string, buildOpts string, runOpts string, out chan<- *Message) *Process {
     p := &Process{
         id:   id,
         out:  out,
         done: make(chan struct{}),
     }
-    if err := p.start(body, buildOpts); err != nil {
+    if err := p.start(body, buildOpts, runOpts); err != nil {
         p.end(err)
         return nil
     }
@@ -343,7 +345,7 @@ func (p *Process) Kill() {
 
 // start builds and starts the given program, sends its output to p.out,
 // and stores the running *exec.Cmd in the run field.
-func (p *Process) start(body string, buildOpts string) error {
+func (p *Process) start(body string, buildOpts string, runOpts string) error {
 	// We "go build" and then exec the binary so that the
 	// resultant *exec.Cmd is a handle to the user's program
 	// (rather than the go tool process).
@@ -367,11 +369,12 @@ func (p *Process) start(body string, buildOpts string) error {
     defer os.Remove(bin)
     dir, file := filepath.Split(src)
     var cmd  *exec.Cmd
-	if len(buildOpts) == 0 {
-		cmd = p.cmd(dir, "go", "build", "-o", bin, file)
-	} else {
-		cmd = p.cmd(dir, "go", "build", buildOpts, "-o", bin, file)
+	buildArgs := []string{"go", "build", "-o", bin}
+	if len(buildOpts) != 0 {
+		buildArgs = append(buildArgs, strings.Split(buildOpts, " ")...)
 	}
+	buildArgs = append(buildArgs, file)
+	cmd = p.cmd(dir, buildArgs...)
 	// fmt.Println("++cmd", cmd);
 	cmd.Stdout = cmd.Stderr // send compiler output to stderr
     if err := cmd.Run(); err != nil {
