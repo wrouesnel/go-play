@@ -149,6 +149,7 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func compile(body string, buildOpts string, runOpts string) (stdout []byte, stderr []byte, err error) {
+	// fmt.Println("++Runopts", runOpts)
 	// x is the base name for .go, .6, executable files
 	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
 	src := x + ".go"
@@ -194,6 +195,9 @@ func compile(body string, buildOpts string, runOpts string) (stdout []byte, stde
 	// run x
 	var runStdout, runStderr [] byte
 	runArgs := []string{bin}
+	if len(runOpts) != 0 {
+		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
+	}
 	runStdout, runStderr, err = run("", runArgs)
 	stdout = append(stdout, runStdout...)
 	stderr = append(stderr, runStderr...)
@@ -208,6 +212,7 @@ func run(dir string, args []string) ([]byte, []byte, error) {
 	cmd.Dir = dir
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	// fmt.Println(cmd)
 	err := cmd.Run()
 	return stdout.Bytes(), stderr.Bytes(), err
 }
@@ -382,7 +387,11 @@ func (p *Process) start(body string, buildOpts string, runOpts string) error {
     }
 
     // run x
-    cmd = p.cmd("", bin)
+	runArgs := []string{bin}
+	if len(runOpts) != 0 {
+		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
+	}
+    cmd = p.cmd("", runArgs...)
     if err := cmd.Start(); err != nil {
         return err
     }
@@ -477,7 +486,7 @@ func SaveHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	err = ioutil.WriteFile(filename, body.Bytes(), 0600)
 	if err != nil {
-		fmt.Printf("Save Error: %s\n", err.Error())
+		// fmt.Printf("Save Error: %s\n", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

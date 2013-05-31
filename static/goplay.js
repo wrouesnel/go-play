@@ -335,14 +335,14 @@ var goplay = (function (global) {
 		return;
 	    }
 	}
-	runViaPOST(goCode, buildOpts);
+	runViaPOST(goCode, buildOpts, runOpts);
     }
 
     // Compile and run go program via HTTP POST
-    function runViaPOST(goCode) {
+    function runViaPOST(goCode, buildOpts, runOpts) {
 
 	$.ajax("/compile", {
-	    data: {Body: goCode, BuildOpts: buildOpts},
+	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts},
 	    type: "POST",
 	    dataType: "json",
 	    success: function(data) {
