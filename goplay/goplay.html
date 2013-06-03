@@ -38,9 +38,9 @@
       <textarea itemprop="description" id="code" name="code" autocorrect="off"
 		autocomplete="off" autocapatalize="off" spellcheck="false"
 		>{{printf "%s" .Snippet.Body |html}}</textarea>
-      <div class="hints">
+      <div class="hints" id="hints">
 	<p>
-	(Shift-Enter to compile and run.)&nbsp;&nbsp;&nbsp;&nbsp;</p>
+	<code>Shift-Enter:</code> compile and run; &nbsp; <code>Ctrl-L</code>: Format; &nbsp; <code>Ctrl-S</code>: Save</p>
       </div>
       <div class="output">
 	<div class="buttons">

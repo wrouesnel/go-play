@@ -21,6 +21,7 @@ var goplay = (function (global) {
     var aboutEl;
     var aboutButtonEl;
     var settingsEl;
+    var hintsEl;
     var settingsButtonEl;
     var codeEl;
 
@@ -196,6 +197,16 @@ var goplay = (function (global) {
 	}
     }
 
+    function hideHints() {
+	if (hintsEl == null) hintsEl = $('#hints');
+	if (hintsEl.is(':visible')) hintsEl.hide();
+    }
+
+    function showHints() {
+	if (hintsEl == null) hintsEl = $('#hints');
+	if (!hintsEl.is(':visible')) hintsEl.show();
+    }
+
     // This is called with the "About" button is clicked and we want to
     // show that info or when show is false, we want to hide the tab.
     function onAbout(show) {
@@ -206,12 +217,14 @@ var goplay = (function (global) {
 	if (aboutEl.is(':visible')) {
 	    aboutButtonEl.value="About";
 	    aboutEl.hide();
+	    showHints();
 	    return;
 	}
 	if (show) {
 	    onSettings(false);
 	    aboutButtonEl.value="Code";
 	    aboutEl.show();
+	    hideHints();
 	}
     }
 
@@ -225,12 +238,14 @@ var goplay = (function (global) {
 	if (settingsEl.is(':visible')) {
 	    settingsButtonEl.value="Settings";
 	    settingsEl.hide();
+	    showHints();
 	    return;
 	}
 	if (show) {
 	    onAbout(false);
 	    settingsButtonEl.value="Code";
 	    settingsEl.show();
+	    hideHints();
 	}
     }
 
@@ -238,8 +253,8 @@ var goplay = (function (global) {
     function showCodeTab() {
 	onAbout(false);
 	onSettings(false);
+	showHints();
     }
-
 
     function onFileLoad(event) {
 	// Loop through the FileList looking for go files.
