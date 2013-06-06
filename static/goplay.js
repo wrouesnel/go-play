@@ -325,6 +325,7 @@ var goplay = (function (global) {
 
 	buildOpts = document.playsettings.buildOpts.value;
 	runOpts   = document.playsettings.runOpts.value;
+	runEnv    = document.playsettings.runEnv.value;
 
 	if (!serverReachable()) return;
 	showCodeTab();
@@ -346,18 +347,18 @@ var goplay = (function (global) {
 
 	if (useWs) {
 	    if (wsOpened) {
-		runViaWS(goCode, buildOpts, runOpts);
+		runViaWS(goCode, buildOpts, runOpts, runEnv);
 		return;
 	    }
 	}
-	runViaPOST(goCode, buildOpts, runOpts);
+	runViaPOST(goCode, buildOpts, runOpts, runEnv);
     }
 
     // Compile and run go program via HTTP POST
-    function runViaPOST(goCode, buildOpts, runOpts) {
+    function runViaPOST(goCode, buildOpts, runOpts, runEnv) {
 
 	$.ajax("/compile", {
-	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts},
+	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts, RunEnv: runEnv},
 	    type: "POST",
 	    dataType: "json",
 	    success: function(data) {
@@ -394,8 +395,9 @@ var goplay = (function (global) {
     }
 
     // Compile and run go program via websocket.
-    function runViaWS(goCode, buildOpts) {
-	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts};
+    function runViaWS(goCode, buildOpts, runEnv) {
+	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts,
+		   RunOpts: runOpts, RunEnv: runEnv};
 	var kill = document.getElementById('killbutton');
 	kill.hidden = false;
 	try {

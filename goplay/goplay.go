@@ -134,9 +134,10 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	var stderr, stdout []byte
 	var err error
+	runEnv := strings.Split(req.FormValue("RunEnv"), " ")
 	stdout, stderr, err =
 		compile(req.FormValue("Body"), req.FormValue("BuildOpts"),
-		req.FormValue("RunOpts"));
+		req.FormValue("RunOpts"), runEnv);
 	resp.Stdout = string(stdout)
 	resp.Stderr = string(stderr)
 	if err != nil {
@@ -148,8 +149,7 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func compile(body string, buildOpts string, runOpts string) (stdout []byte, stderr []byte, err error) {
-	// fmt.Println("++Runopts", runOpts)
+func compile(body string, buildOpts string, runOpts string, runEnv []string) (stdout []byte, stderr []byte, err error) {
 	// x is the base name for .go, .6, executable files
 	x := filepath.Join(tmpdir, "compile"+strconv.Itoa(<-uniq))
 	src := x + ".go"
@@ -180,7 +180,7 @@ func compile(body string, buildOpts string, runOpts string) (stdout []byte, stde
 		buildArgs = append(buildArgs, strings.Split(buildOpts, " ")...)
 	}
 	buildArgs = append(buildArgs, file)
-	stdout, stderr, err = run(dir, buildArgs)
+	stdout, stderr, err = run(dir, nil, buildArgs)
 	defer os.Remove(bin)
 	if err != nil {
 		/* fmt.Printf("+++ stdout is %s\n", stdout)
@@ -198,20 +198,23 @@ func compile(body string, buildOpts string, runOpts string) (stdout []byte, stde
 	if len(runOpts) != 0 {
 		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
 	}
-	runStdout, runStderr, err = run("", runArgs)
+	runStdout, runStderr, err = run("", runEnv, runArgs)
 	stdout = append(stdout, runStdout...)
 	stderr = append(stderr, runStderr...)
 	return
 }
 
 // run executes the specified command and returns its output and an error.
-func run(dir string, args []string) ([]byte, []byte, error) {
+func run(dir string, env []string, args []string) ([]byte, []byte, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = dir
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	if env != nil && len(env) != 0 {
+		cmd.Env = env
+	}
 	// fmt.Println(cmd)
 	err := cmd.Run()
 	return stdout.Bytes(), stderr.Bytes(), err
@@ -299,7 +302,7 @@ func WSCompileRunHandler(c *websocket.Conn) {
             switch m.Kind {
             case "run":
                 proc[m.Id].Kill()
-                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, out)
+                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, nil, out)
             case "kill":
                 proc[m.Id].Kill()
             }
@@ -325,13 +328,14 @@ type Process struct {
 
 // StartProcess builds and runs the given program, sending its output
 // and end event as Messages on the provided channel.
-func StartProcess(id, body string, buildOpts string, runOpts string, out chan<- *Message) *Process {
+func StartProcess(id, body string, buildOpts string, runOpts string, runEnv []string,
+	out chan<- *Message) *Process {
     p := &Process{
         id:   id,
         out:  out,
         done: make(chan struct{}),
     }
-    if err := p.start(body, buildOpts, runOpts); err != nil {
+    if err := p.start(body, buildOpts, runOpts, runEnv); err != nil {
         p.end(err)
         return nil
     }
@@ -350,7 +354,8 @@ func (p *Process) Kill() {
 
 // start builds and starts the given program, sends its output to p.out,
 // and stores the running *exec.Cmd in the run field.
-func (p *Process) start(body string, buildOpts string, runOpts string) error {
+func (p *Process) start(body string, buildOpts string,
+	                    runOpts string, runEnv []string) error {
 	// We "go build" and then exec the binary so that the
 	// resultant *exec.Cmd is a handle to the user's program
 	// (rather than the go tool process).
@@ -379,7 +384,7 @@ func (p *Process) start(body string, buildOpts string, runOpts string) error {
 		buildArgs = append(buildArgs, strings.Split(buildOpts, " ")...)
 	}
 	buildArgs = append(buildArgs, file)
-	cmd = p.cmd(dir, buildArgs...)
+	cmd = p.cmd(dir, nil, buildArgs...)
 	// fmt.Println("++cmd", cmd);
 	cmd.Stdout = cmd.Stderr // send compiler output to stderr
     if err := cmd.Run(); err != nil {
@@ -391,7 +396,7 @@ func (p *Process) start(body string, buildOpts string, runOpts string) error {
 	if len(runOpts) != 0 {
 		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
 	}
-    cmd = p.cmd("", runArgs...)
+    cmd = p.cmd("", runEnv, runArgs...)
     if err := cmd.Start(); err != nil {
         return err
     }
@@ -419,10 +424,13 @@ func (p *Process) end(err error) {
 
 // cmd builds an *exec.Cmd that writes its standard output and error to the
 // Process' output channel.
-func (p *Process) cmd(dir string, args ...string) *exec.Cmd {
+func (p *Process) cmd(dir string, env []string, args ...string) *exec.Cmd {
     cmd := exec.Command(args[0], args[1:]...)
     cmd.Dir = dir
-	if Environ != nil {
+	if env != nil && len(env) != 0 {
+		fmt.Println("Env is", env)
+		cmd.Env = env
+	} else if Environ != nil {
 		cmd.Env = Environ()
 	}
     cmd.Stdout = &messageWriter{p.id, "stdout", p.out}
