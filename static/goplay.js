@@ -336,7 +336,6 @@ var goplay = (function(global) {
 
     function onRun() {
 
-<<<<<<< HEAD
 	buildOpts = document.playsettings.buildOpts.value;
 	runOpts   = document.playsettings.runOpts.value;
 	runEnv    = document.playsettings.runEnv.value;
@@ -373,7 +372,6 @@ var goplay = (function(global) {
     // Compile and run go program via HTTP POST
     function runViaPOST(goCode, buildOpts, runOpts, runEnv, goTest, srcDir) {
 
-<<<<<<< HEAD
 	$.ajax("/compile", {
 	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts, RunEnv: runEnv,
 		   SrcDir: srcDir, GoTest: goTest},
