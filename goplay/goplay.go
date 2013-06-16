@@ -265,7 +265,7 @@ type Message struct {
 	BuildOpts string // flags to pass to "go build"
 	RunOpts   string // flags to pass to "invocation"
 	Body      string
-	GoTest    string // Run "go test" instead of "go run"?
+	GoTest    bool   // Run "go test" instead of "go run"?
 	SrcDir    string // Source Directory in run. Needs to be set for "go test"
 }
 
@@ -329,13 +329,13 @@ func WSCompileRunHandler(c *websocket.Conn) {
         case m := <-in:
             switch m.Kind {
             case "run":
-				// srcDir := m.SrcDir
 				goTest := m.GoTest
                 proc[m.Id].Kill()
-				if ("true" == goTest) {
-					fmt.Println("Not implemented yet")
+				if goTest {
+					proc[m.Id] = StartTest(m.Id, m.SrcDir, m.RunOpts, nil, out)
+				} else {
+					proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, nil, out)
 				}
-                proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, nil, out)
             case "kill":
                 proc[m.Id].Kill()
             }
@@ -369,6 +369,23 @@ func StartProcess(id, body string, buildOpts string, runOpts string, runEnv []st
         done: make(chan struct{}),
     }
     if err := p.start(body, buildOpts, runOpts, runEnv); err != nil {
+        p.end(err)
+        return nil
+    }
+    go p.wait()
+    return p
+}
+
+// StartProcess builds and runs the given program, sending its output
+// and end event as Messages on the provided channel.
+func StartTest(id, dir string, runOpts string, runEnv []string,
+	out chan<- *Message) *Process {
+    p := &Process{
+        id:   id,
+        out:  out,
+        done: make(chan struct{}),
+    }
+    if err := p.test(dir, runOpts, runEnv); err != nil {
         p.end(err)
         return nil
     }
@@ -430,6 +447,23 @@ func (p *Process) start(body string, buildOpts string,
 		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
 	}
     cmd = p.cmd("", runEnv, runArgs...)
+    if err := cmd.Start(); err != nil {
+        return err
+    }
+
+    p.run = cmd
+    return nil
+}
+
+// Run go test on given directory, sends its output to p.out,
+// and stores the running *exec.Cmd in the run field.
+func (p *Process) test(dir string, runOpts string, runEnv []string) error {
+    // run go test
+	runArgs := []string{"go", "test"}
+	if len(runOpts) != 0 {
+		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
+	}
+    cmd := p.cmd(dir, runEnv, runArgs...)
     if err := cmd.Start(); err != nil {
         return err
     }
