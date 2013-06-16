@@ -35,6 +35,9 @@ $(document).ready(function() {
     $('#tabSetting').focusout(function() {
         goplay.onTabSetting();
     })
+    $('#gotest').click(function() {
+        goplay.onGoTestButton();
+    })
     $('#websocket').click(function() {
         goplay.onWSButton();
     })

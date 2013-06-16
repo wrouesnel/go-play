@@ -127,6 +127,18 @@ var goplay = (function (global) {
 	return false; // prevent further bubbling of event
     }
 
+    function onGoTestButton() {
+	gotest = document.playsettings.gotest.checked
+	if (gotest) {
+	    buildOptsDiv = document.getElementById("buildOptsDiv");
+	    buildOptsDiv.hidden = true;
+	} else {
+	    buildOptsDiv = document.getElementById("buildOptsDiv");
+	    buildOptsDiv.hidden = false;
+	}
+	return false; // prevent further bubbling of event
+    }
+
     // Return a string containing the Go code.
     function goCodeBody() {
 	if (null == codeEl) {
@@ -326,6 +338,8 @@ var goplay = (function (global) {
 	buildOpts = document.playsettings.buildOpts.value;
 	runOpts   = document.playsettings.runOpts.value;
 	runEnv    = document.playsettings.runEnv.value;
+	goTest    = document.playsettings.gotest.checked
+	srcDir    = document.playsettings.srcDir.value;
 
 	if (!serverReachable()) return;
 	showCodeTab();
@@ -347,18 +361,19 @@ var goplay = (function (global) {
 
 	if (useWs) {
 	    if (wsOpened) {
-		runViaWS(goCode, buildOpts, runOpts, runEnv);
+		runViaWS(goCode, buildOpts, runOpts, runEnv, goTest, srcDir);
 		return;
 	    }
 	}
-	runViaPOST(goCode, buildOpts, runOpts, runEnv);
+	runViaPOST(goCode, buildOpts, runOpts, runEnv, goTest, srcDir);
     }
 
     // Compile and run go program via HTTP POST
-    function runViaPOST(goCode, buildOpts, runOpts, runEnv) {
+    function runViaPOST(goCode, buildOpts, runOpts, runEnv, goTest, srcDir) {
 
 	$.ajax("/compile", {
-	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts, RunEnv: runEnv},
+	    data: {Body: goCode, BuildOpts: buildOpts, RunOpts: runOpts, RunEnv: runEnv,
+		   SrcDir: srcDir, GoTest: goTest},
 	    type: "POST",
 	    dataType: "json",
 	    success: function(data) {
@@ -397,7 +412,7 @@ var goplay = (function (global) {
     // Compile and run go program via websocket.
     function runViaWS(goCode, buildOpts, runEnv) {
 	var msg = {Id: "0", Kind: "run", Body: goCode, BuildOpts: buildOpts,
-		   RunOpts: runOpts, RunEnv: runEnv};
+		   RunOpts: runOpts, RunEnv: runEnv, GoTest: goTest, SrcDir: srcDir};
 	var kill = document.getElementById('killbutton');
 	kill.hidden = false;
 	try {
@@ -605,6 +620,7 @@ var goplay = (function (global) {
 	onSave           : onSave,
 	onSettings       : onSettings,
 	onTabSetting     : onTabSetting,
+	onGoTestButton   : onGoTestButton,
 	onWSbutton       : onWSButton,
 	onWSKill         : onWSKill,
 	positionOnError  : positionOnError,

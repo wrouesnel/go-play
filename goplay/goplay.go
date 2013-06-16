@@ -134,10 +134,17 @@ func CompileHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	var stderr, stdout []byte
 	var err error
-	runEnv := strings.Split(req.FormValue("RunEnv"), " ")
-	stdout, stderr, err =
-		compile(req.FormValue("Body"), req.FormValue("BuildOpts"),
-		req.FormValue("RunOpts"), runEnv);
+	runEnv  := strings.Split(req.FormValue("RunEnv"), " ")
+	runOpts := req.FormValue("RunOpts")
+	srcDir  := req.FormValue("SrcDir")
+	goTest  := req.FormValue("GoTest")
+
+	if ("true" == goTest) {
+		stdout, stderr, err = runTestViaPost(srcDir, runOpts, runEnv)
+	} else {
+		stdout, stderr, err =
+			compile(req.FormValue("Body"), req.FormValue("BuildOpts"), runOpts, runEnv)
+	}
 	resp.Stdout = string(stdout)
 	resp.Stderr = string(stderr)
 	if err != nil {
@@ -204,6 +211,20 @@ func compile(body string, buildOpts string, runOpts string, runEnv []string) (st
 	return
 }
 
+func runTestViaPost(dir string, runOpts string, runEnv []string) (stdout []byte, stderr []byte, err error) {
+
+	// run x
+	var runStdout, runStderr [] byte
+	runArgs := []string{"go", "test"}
+	if len(runOpts) != 0 {
+		runArgs = append(runArgs, strings.Split(runOpts, " ")...)
+	}
+	runStdout, runStderr, err = run(dir, runEnv, runArgs)
+	stdout = append(stdout, runStdout...)
+	stderr = append(stderr, runStderr...)
+	return
+}
+
 // run executes the specified command and returns its output and an error.
 func run(dir string, env []string, args []string) ([]byte, []byte, error) {
 	var stdout bytes.Buffer
@@ -215,6 +236,11 @@ func run(dir string, env []string, args []string) ([]byte, []byte, error) {
 	if env != nil && len(env) != 0 {
 		cmd.Env = env
 	}
+	s := fmt.Sprintf("GOPATH=%s", os.Getenv("GOPATH"))
+	cmd.Env = append(cmd.Env, s)
+	s = fmt.Sprintf("GOROOT=%s", os.Getenv("GOROOT"))
+	cmd.Env = append(cmd.Env, s)
+	// fmt.Println("++++ env is", cmd.Env)
 	// fmt.Println(cmd)
 	err := cmd.Run()
 	return stdout.Bytes(), stderr.Bytes(), err
@@ -239,6 +265,8 @@ type Message struct {
 	BuildOpts string // flags to pass to "go build"
 	RunOpts   string // flags to pass to "invocation"
 	Body      string
+	GoTest    string // Run "go test" instead of "go run"?
+	SrcDir    string // Source Directory in run. Needs to be set for "go test"
 }
 
 func init() {
@@ -301,7 +329,12 @@ func WSCompileRunHandler(c *websocket.Conn) {
         case m := <-in:
             switch m.Kind {
             case "run":
+				// srcDir := m.SrcDir
+				goTest := m.GoTest
                 proc[m.Id].Kill()
+				if ("true" == goTest) {
+					fmt.Println("Not implemented yet")
+				}
                 proc[m.Id] = StartProcess(m.Id, m.Body, m.BuildOpts, m.RunOpts, nil, out)
             case "kill":
                 proc[m.Id].Kill()
@@ -428,11 +461,17 @@ func (p *Process) cmd(dir string, env []string, args ...string) *exec.Cmd {
     cmd := exec.Command(args[0], args[1:]...)
     cmd.Dir = dir
 	if env != nil && len(env) != 0 {
-		fmt.Println("Env is", env)
 		cmd.Env = env
 	} else if Environ != nil {
 		cmd.Env = Environ()
 	}
+
+	// FIXME: we should merge what is in ENV
+	s := fmt.Sprintf("GOPATH=%s", os.Getenv("GOPATH"))
+	cmd.Env = append(cmd.Env, s)
+	s = fmt.Sprintf("GOROOT=%s", os.Getenv("GOROOT"))
+	cmd.Env = append(cmd.Env, s)
+
     cmd.Stdout = &messageWriter{p.id, "stdout", p.out}
     cmd.Stderr = &messageWriter{p.id, "stderr", p.out}
     return cmd

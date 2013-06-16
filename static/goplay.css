@@ -103,6 +103,20 @@ a {
 }
 
 /********************************************************
+  source directory text input
+**********************************************************/
+#srcDir {
+        width: 70%;
+}
+
+/********************************************************
+  tab setting input text, need only to 2 characters or so
+**********************************************************/
+#tabSetting {
+    width: 21px;
+}
+
+/********************************************************
   The "save" button
 **********************************************************/
 #saveLoc {
@@ -119,7 +133,7 @@ a {
 }
 
 /***********************************************************************
-  Buster uses a div called "setings". Don't confuse this with the
+  Buster uses a div called "settings". Don't confuse this with the
   goplay settings page called "playsettings"
   **********************************************************************/
 #settings {
