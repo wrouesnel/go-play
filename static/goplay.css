@@ -190,9 +190,14 @@ a {
 	font-size: 30px;
 	font-family: Georgia, serif;
 }
+
 #controls {
-	float: left;
-	padding: 10px;
+    float: left;
+    padding: 10px;
+}
+
+#controls a {
+    text-decoration: none;
 }
 
 /* input[type=button] { */
