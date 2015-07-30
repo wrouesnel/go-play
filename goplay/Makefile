@@ -17,5 +17,5 @@ check:
 	cd .. && make test
 
 #: Build the goplay executable
-goplay: goplay.go
-	go build goplay.go
+goplay: goplay.go bindata_assetfs.go
+	go build

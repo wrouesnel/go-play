@@ -43,8 +43,8 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -54,7 +54,6 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-
 )
 
 /************** FIXME: put in a separate file ****************/
@@ -595,6 +594,8 @@ var (
 )
 
 func main() {
+	goplayHtml, _ := assetFS().Asset("data/goplay.html")
+	editTemplate.Parse(string(goplayHtml))
 	flag.Parse()
 
 	// source of unique numbers
@@ -618,10 +619,10 @@ func main() {
 	http.HandleFunc("/save/",     SaveHandler)
 	http.Handle("/wscompile", websocket.Handler(WSCompileRunHandler))
 
-	http.Handle("/static/", http.StripPrefix("/static/",
-		http.FileServer(http.Dir("../static"))))
+	http.Handle("/static/", http.FileServer(assetFS()))
 	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n",
 		*httpListen)
+	
 	log.Fatal(http.ListenAndServe(*httpListen, nil))
 }
 
@@ -635,7 +636,7 @@ func main() {
 	fmt.Println("hello, world")
 }
 `
-var editTemplate = template.Must(template.ParseFiles("goplay.html"))
+var editTemplate = template.New("goplay.html")
 
 type Snippet struct {
 	Body []byte
