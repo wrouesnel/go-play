@@ -22,11 +22,11 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"strings"
-	"os"
-	"time"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 func bindataRead(data []byte, name string) ([]byte, error) {
@@ -55,9 +55,9 @@ type asset struct {
 }
 
 type bindataFileInfo struct {
-	name string
-	size int64
-	mode os.FileMode
+	name    string
+	size    int64
+	mode    os.FileMode
 	modTime time.Time
 }
 
@@ -95,8 +95,8 @@ func dataGoplayHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/goplay.html", size: 4199, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/goplay.html", size: 4199, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -115,8 +115,8 @@ func dataStaticFaviconIco() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/favicon.ico", size: 1082, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/favicon.ico", size: 1082, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -135,8 +135,8 @@ func dataStaticFmtJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/fmt.js", size: 8169, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/fmt.js", size: 8169, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -155,8 +155,8 @@ func dataStaticGoplayCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/goplay.css", size: 6123, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/goplay.css", size: 6123, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -175,8 +175,8 @@ func dataStaticGoplayJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/goplay.js", size: 20049, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/goplay.js", size: 20049, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -195,8 +195,8 @@ func dataStaticHelperJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/helper.js", size: 1528, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/helper.js", size: 1528, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -215,8 +215,8 @@ func dataStaticJqueryLinedtextareaJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/jquery-linedtextarea.js", size: 1489, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/jquery-linedtextarea.js", size: 1489, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -235,8 +235,8 @@ func dataStaticJqueryMinJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/jquery.min.js", size: 93435, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/jquery.min.js", size: 93435, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -255,8 +255,8 @@ func dataStaticLinkerrorJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/linkerror.js", size: 872, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/linkerror.js", size: 872, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -275,8 +275,8 @@ func dataStaticMainJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/main.js", size: 2076, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/main.js", size: 2076, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -295,8 +295,8 @@ func dataStaticPlaygroundJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/playground.js", size: 1542, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/playground.js", size: 1542, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -315,8 +315,8 @@ func dataStaticTimediffJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/static/timediff.js", size: 1590, mode: os.FileMode(420), modTime: time.Unix(1438217368, 0)}
-	a := &asset{bytes: bytes, info:  info}
+	info := bindataFileInfo{name: "data/static/timediff.js", size: 1590, mode: os.FileMode(420), modTime: time.Unix(1454023341, 0)}
+	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
 
@@ -339,7 +339,7 @@ func Asset(name string) ([]byte, error) {
 // It simplifies safe initialization of global variables.
 func MustAsset(name string) []byte {
 	a, err := Asset(name)
-	if (err != nil) {
+	if err != nil {
 		panic("asset: Asset(" + name + "): " + err.Error())
 	}
 
@@ -422,91 +422,79 @@ func AssetDir(name string) ([]string, error) {
 }
 
 type bintree struct {
-	Func func() (*asset, error)
+	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
 var _bintree = &bintree{nil, map[string]*bintree{
 	"data": &bintree{nil, map[string]*bintree{
-		"goplay.html": &bintree{dataGoplayHtml, map[string]*bintree{
-		}},
+		"goplay.html": &bintree{dataGoplayHtml, map[string]*bintree{}},
 		"static": &bintree{nil, map[string]*bintree{
-			"favicon.ico": &bintree{dataStaticFaviconIco, map[string]*bintree{
-			}},
-			"fmt.js": &bintree{dataStaticFmtJs, map[string]*bintree{
-			}},
-			"goplay.css": &bintree{dataStaticGoplayCss, map[string]*bintree{
-			}},
-			"goplay.js": &bintree{dataStaticGoplayJs, map[string]*bintree{
-			}},
-			"helper.js": &bintree{dataStaticHelperJs, map[string]*bintree{
-			}},
-			"jquery-linedtextarea.js": &bintree{dataStaticJqueryLinedtextareaJs, map[string]*bintree{
-			}},
-			"jquery.min.js": &bintree{dataStaticJqueryMinJs, map[string]*bintree{
-			}},
-			"linkerror.js": &bintree{dataStaticLinkerrorJs, map[string]*bintree{
-			}},
-			"main.js": &bintree{dataStaticMainJs, map[string]*bintree{
-			}},
-			"playground.js": &bintree{dataStaticPlaygroundJs, map[string]*bintree{
-			}},
-			"timediff.js": &bintree{dataStaticTimediffJs, map[string]*bintree{
-			}},
+			"favicon.ico": &bintree{dataStaticFaviconIco, map[string]*bintree{}},
+			"fmt.js": &bintree{dataStaticFmtJs, map[string]*bintree{}},
+			"goplay.css": &bintree{dataStaticGoplayCss, map[string]*bintree{}},
+			"goplay.js": &bintree{dataStaticGoplayJs, map[string]*bintree{}},
+			"helper.js": &bintree{dataStaticHelperJs, map[string]*bintree{}},
+			"jquery-linedtextarea.js": &bintree{dataStaticJqueryLinedtextareaJs, map[string]*bintree{}},
+			"jquery.min.js": &bintree{dataStaticJqueryMinJs, map[string]*bintree{}},
+			"linkerror.js": &bintree{dataStaticLinkerrorJs, map[string]*bintree{}},
+			"main.js": &bintree{dataStaticMainJs, map[string]*bintree{}},
+			"playground.js": &bintree{dataStaticPlaygroundJs, map[string]*bintree{}},
+			"timediff.js": &bintree{dataStaticTimediffJs, map[string]*bintree{}},
 		}},
 	}},
 }}
 
 // RestoreAsset restores an asset under the given directory
 func RestoreAsset(dir, name string) error {
-        data, err := Asset(name)
-        if err != nil {
-                return err
-        }
-        info, err := AssetInfo(name)
-        if err != nil {
-                return err
-        }
-        err = os.MkdirAll(_filePath(dir, filepath.Dir(name)), os.FileMode(0755))
-        if err != nil {
-                return err
-        }
-        err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
-        if err != nil {
-                return err
-        }
-        err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
-        if err != nil {
-                return err
-        }
-        return nil
+	data, err := Asset(name)
+	if err != nil {
+		return err
+	}
+	info, err := AssetInfo(name)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(_filePath(dir, filepath.Dir(name)), os.FileMode(0755))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(_filePath(dir, name), data, info.Mode())
+	if err != nil {
+		return err
+	}
+	err = os.Chtimes(_filePath(dir, name), info.ModTime(), info.ModTime())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // RestoreAssets restores an asset under the given directory recursively
 func RestoreAssets(dir, name string) error {
-        children, err := AssetDir(name)
-        // File
-        if err != nil {
-                return RestoreAsset(dir, name)
-        }
-        // Dir
-        for _, child := range children {
-                err = RestoreAssets(dir, filepath.Join(name, child))
-                if err != nil {
-                        return err
-                }
-        }
-        return nil
+	children, err := AssetDir(name)
+	// File
+	if err != nil {
+		return RestoreAsset(dir, name)
+	}
+	// Dir
+	for _, child := range children {
+		err = RestoreAssets(dir, filepath.Join(name, child))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func _filePath(dir, name string) string {
-        cannonicalName := strings.Replace(name, "\\", "/", -1)
-        return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
+	cannonicalName := strings.Replace(name, "\\", "/", -1)
+	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
 
 
 func assetFS() *assetfs.AssetFS {
 	for k := range _bintree.Children {
-		return &assetfs.AssetFS{Asset: Asset, AssetDir: AssetDir, Prefix: k}
+		return &assetfs.AssetFS{Asset: Asset, AssetDir: AssetDir, AssetInfo: AssetInfo, Prefix: k}
 	}
 	panic("unreachable")
 }
